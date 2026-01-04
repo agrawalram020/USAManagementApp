@@ -1,0 +1,82 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    {% if session['role'] == 'owner' %}
+    <div class="col-md-3">
+        <div class="card p-4 shadow-sm position-sticky" style="top:20px;">
+            <h5 class="fw-bold mb-4">Assign New Task</h5>
+            <form action="/task/add" method="POST">
+                <div class="mb-2"><label class="small fw-bold">Title</label><input name="title" class="form-control" required></div>
+                <div class="mb-2">
+                    <label class="small fw-bold">Assignee</label>
+                    <select name="assignee" class="form-select">{% for m in managers %}<option value="{{m}}">{{m}}</option>{% endfor %}</select>
+                </div>
+                <div class="mb-2">
+                    <label class="small fw-bold">Deadline</label>
+                    <input type="date" name="deadline" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                    <label class="small fw-bold">Priority</label>
+                    <select name="priority" class="form-select"><option>High</option><option selected>Medium</option><option>Low</option></select>
+                </div>
+                <div class="mb-3"><label class="small fw-bold">Details</label><textarea name="desc" class="form-control" rows="2"></textarea></div>
+                <button class="btn btn-primary w-100 fw-bold">Create Task</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="{% if session['role'] == 'owner' %}col-md-9{% else %}col-md-12{% endif %}">
+        <h4 class="fw-bold mb-3">Tasks Tracking</h4>
+        <div class="row g-3">
+            {% for t in tasks %}
+            <div class="col-md-6">
+                <div class="card p-3 priority-{{t.priority}} h-100 {% if t.status == 'Completed' %}opacity-75 bg-light{% endif %}">
+                    <div class="d-flex justify-content-between">
+                        <span class="badge {% if t.priority == 'High' %}bg-danger{% elif t.priority == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                            {{t.priority}}
+                        </span>
+                        {% if t.deadline %}
+                            {% if t.status != 'Completed' %}
+                                {% if t.days_left < 0 %}
+                                    <span class="text-danger fw-bold small">Overdue by {{ t.days_left | abs }} days</span>
+                                {% elif t.days_left == 0 %}
+                                    <span class="text-warning fw-bold small">Due Today</span>
+                                {% else %}
+                                    <span class="text-primary fw-bold small">{{ t.days_left }} days remaining</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted small">Finished</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    
+                    <h6 class="fw-bold mt-2 mb-1">{{t.title}}</h6>
+                    <p class="small text-muted mb-2">{{t.description}}</p>
+                    
+                    <div class="comment-box mb-2">{{t.comments if t.comments else "No comments yet..."}}</div>
+                    
+                    <form action="/task/comment/{{t.id}}" method="POST" class="input-group input-group-sm mb-3">
+                        <input name="comment" class="form-control" placeholder="Add note...">
+                        <button class="btn btn-outline-primary">Post</button>
+                    </form>
+
+                    <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-2">
+                        <div class="small text-muted">For: <b>{{t.assigned_to}}</b></div>
+                        <div class="d-flex gap-2">
+                            {% if t.status == 'Pending' %}
+                                <form action="/task/complete/{{t.id}}" method="POST"><button class="btn btn-sm btn-success px-3">Mark Done</button></form>
+                            {% endif %}
+                            {% if session['role'] == 'owner' %}
+                                <form action="/task/delete/{{t.id}}" method="POST"><button class="btn btn-sm btn-outline-danger">✕</button></form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

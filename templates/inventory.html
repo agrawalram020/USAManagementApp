@@ -1,0 +1,33 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-4 mb-4">
+    <h4 class="fw-bold mb-4">Inventory Management</h4>
+    <form action="/product/add" method="POST" class="row g-2 p-3 bg-light rounded">
+        <div class="col-md-3"><input name="name" class="form-control" placeholder="Item Name" required></div>
+        <div class="col-md-2"><select name="cat" class="form-select"><option>Sale</option><option>Rent</option></select></div>
+        <div class="col-md-2"><input type="number" name="buy" class="form-control" placeholder="Unit Cost" required></div>
+        <div class="col-md-2"><input type="number" name="sell" class="form-control" placeholder="Sell Price" required></div>
+        <div class="col-md-2"><input type="number" name="stock" class="form-control" placeholder="Qty" required></div>
+        <div class="col-md-1"><button class="btn btn-primary w-100">Add</button></div>
+    </form>
+</div>
+<div class="card p-0 shadow-sm overflow-hidden">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th>Product</th><th>Type</th><th>Cost</th><th>Price</th><th>Stock Status</th></tr></thead>
+        <tbody>
+            {% for p in products %}
+            <tr>
+                <td><b>{{p.name}}</b></td>
+                <td><span class="badge {% if p.category=='Sale' %}bg-info{% else %}bg-warning text-dark{% endif %}">{{p.category}}</span></td>
+                <td>₹{{p.buy_price}}</td><td>₹{{p.sell_price}}</td>
+                <td>
+                    {% if p.stock <= p.low_stock_limit %}<span class="text-danger fw-bold">LOW: {{p.stock}}</span>
+                    {% else %}<span class="text-success">{{p.stock}}</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

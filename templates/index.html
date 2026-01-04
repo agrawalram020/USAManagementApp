@@ -1,0 +1,147 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="row g-3 mb-4">
+            {% for p in products %}
+            <div class="col-md-3">
+                <div class="card p-3 text-center cursor-pointer h-100 position-relative {% if p.stock <= p.low_stock_limit %}low-stock{% endif %}" onclick="addToCart('{{p.name}}', {{p.sell_price}}, '{{p.category}}')">
+                    {% if p.stock <= p.low_stock_limit %}<span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem">LOW</span>{% endif %}
+                    <div class="fw-bold small">{{p.name}}</div>
+                    <div class="text-primary fw-bold h5">₹{{p.sell_price}}</div>
+                    <small class="text-muted">In Stock: {{p.stock}}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="card p-4 mb-4">
+            <h6 class="fw-bold text-primary mb-3">📅 New Court Booking</h6>
+            <div class="row g-2">
+                <div class="col-md-4"><input type="text" id="b_name" class="form-control" placeholder="Player Name*"></div>
+                <div class="col-md-4"><input type="text" id="b_mobile" class="form-control" placeholder="Mobile Number"></div>
+                <div class="col-md-2"><select id="b_court" class="form-select"><option value="1">C1</option><option value="2">C2</option><option value="3">C3</option><option value="4">C4</option></select></div>
+                <div class="col-md-2"><input type="date" id="b_date" class="form-control" onchange="calcPrice()"></div>
+                <div class="col-md-4"><select id="b_slot" class="form-select" onchange="calcPrice()">{% for s in slots %}<option>{{s}}</option>{% endfor %}</select></div>
+                <div class="col-md-3"><div class="input-group"><span class="input-group-text">₹</span><input type="number" id="b_price" class="form-control fw-bold" value="279"></div></div>
+                <div class="col-md-5"><input type="text" id="b_desc" class="form-control" placeholder="Booking Description"></div>
+                <button class="btn btn-primary w-100 mt-2 fw-bold py-2" onclick="addBooking()">Add Booking to Cart</button>
+            </div>
+        </div>
+
+        <div class="card p-0 overflow-hidden">
+            <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold">Daily Ledger</h6>
+                <div class="text-success fw-bold">Daily Revenue: ₹{{today_total}}</div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light small"><tr><th>Time</th><th>Item</th><th>Court</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>{% for t in today_txns %}
+                    <tr class="{% if t.status == 'Pending' %}status-pending{% endif %}">
+                        <td class="small">{{t.timestamp.strftime('%H:%M')}}</td>
+                        <td><b>{{t.item_name}}</b></td>
+                        <td>C{{t.court}}</td>
+                        <td>₹{{t.total_sell}}</td>
+                        <td>
+                            {% if t.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            {% else %}
+                            <span class="badge bg-success">Paid</span>
+                            {% endif %}
+                        </td>
+                        <td class="d-flex gap-2">
+                            {% if t.status == 'Pending' %}
+                            <form action="/complete_txn/{{t.id}}" method="POST" class="no-loader"><button class="btn btn-link text-success p-0 small fw-bold">Mark Paid</button></form>
+                            {% endif %}
+                            <form action="/undo_txn/{{t.id}}" method="POST" class="no-loader"><button class="btn btn-link text-danger p-0 small">Undo</button></form>
+                        </td>
+                    </tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4 shadow-lg sticky-top" style="top:20px; border-top: 5px solid #2563eb;">
+            <h5 class="fw-bold mb-4">Shopping Cart</h5>
+            <div id="cart-list" style="min-height: 250px;"></div>
+            <div class="d-flex justify-content-between h3 fw-bold border-top pt-3 mt-3"><span>Total</span><span>₹<span id="cart-total">0</span></span></div>
+            
+            <div class="row g-2 mt-3">
+                <div class="col-6"><button class="btn btn-success w-100 py-3 fw-bold" onclick="checkout('Completed')">Checkout (Paid)</button></div>
+                <div class="col-6"><button class="btn btn-warning w-100 py-3 fw-bold" onclick="checkout('Pending')">Mark Pending</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let cart = [];
+
+function calcPrice(){
+    const dateInput = document.getElementById('b_date').value;
+    const slot = document.getElementById('b_slot').value;
+    const d = dateInput ? new Date(dateInput) : new Date();
+    const day = d.getDay(); 
+    const isPM = slot.includes("PM");
+    const hr = parseInt(slot);
+    let price = 279;
+    if(day >= 1 && day <= 4 && isPM && hr >= 5 && hr < 12) price = 333;
+    if((day == 5 && isPM && hr >= 5 && hr < 12) || day == 0 || day == 6) price = 379;
+    document.getElementById('b_price').value = price;
+}
+
+// Set default input date to today based on LOCAL machine time (browser)
+document.getElementById('b_date').valueAsDate = new Date();
+calcPrice();
+
+function addToCart(n, p, c){
+    let ex = cart.find(i=>i.name===n);
+    if(ex) ex.qty++; else cart.push({name:n, price:p, category:c, qty:1});
+    render();
+}
+
+function removeFromCart(i){ cart.splice(i, 1); render(); }
+
+function addBooking(){ 
+    let n = document.getElementById('b_name').value;
+    if(!n) return alert("Player Name is Required");
+    cart.push({
+        name: `B: ${n}`, 
+        price: parseInt(document.getElementById('b_price').value), 
+        category: 'Booking', 
+        qty: 1, 
+        court: document.getElementById('b_court').value, 
+        mobile: document.getElementById('b_mobile').value, 
+        desc: document.getElementById('b_desc').value
+    });
+    render();
+}
+
+function render(){
+    let h='', t=0;
+    cart.forEach((it, i)=>{
+        t += it.price * it.qty;
+        h += `<div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded shadow-sm">
+                <div class="small"><b>${it.name}</b><br>₹${it.price} x ${it.qty}</div>
+                <button class="btn btn-sm btn-outline-danger border-0" onclick="removeFromCart(${i})">✕</button>
+              </div>`;
+    });
+    document.getElementById('cart-list').innerHTML = h || '<div class="text-center py-5 text-muted small">Cart is empty</div>';
+    document.getElementById('cart-total').innerText = t;
+}
+
+function checkout(status){
+    if(!cart.length) return;
+    showLoader();
+    fetch('/submit_order',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({items:cart, status: status})
+    }).then(()=>location.reload());
+}
+</script>
+{% endblock %}

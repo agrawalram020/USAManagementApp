@@ -1,0 +1,130 @@
+
+{% extends "base.html" %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* Styling for the multi-select dropdown */
+    .dropdown-check-list { display: inline-block; position: relative; }
+    .dropdown-check-list .anchor { 
+        position: relative; cursor: pointer; display: inline-block; 
+        padding: 5px 25px 5px 10px; border: 1px solid #ccc; 
+        border-radius: 4px; background: #fff; min-width: 180px;
+    }
+    .dropdown-check-list .anchor:after { 
+        position: absolute; content: ""; border-left: 2px solid black; 
+        border-top: 2px solid black; padding: 3px; right: 10px; 
+        top: 35%; transform: rotate(-135deg); 
+    }
+    .dropdown-check-list ul.items { 
+        padding: 5px; display: none; margin: 0; border: 1px solid #ccc; 
+        border-top: none; position: absolute; z-index: 1000; 
+        background: #fff; width: 100%; list-style: none; 
+    }
+    .dropdown-check-list ul.items li { padding: 5px; }
+    .dropdown-check-list.visible ul.items { display: block; }
+</style>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-4"><h3>Business Analytics</h3></div>
+    <div class="col-md-8 text-end">
+        <form class="d-flex gap-2 justify-content-end align-items-center" id="filterForm" method="GET" action="/dashboard">
+            <span class="small fw-bold text-muted">Filters:</span>
+            
+            <div id="list1" class="dropdown-check-list" tabindex="100">
+                <span class="anchor">Select Categories</span>
+                <ul class="items">
+                    <li><input type="checkbox" name="cat" value="All" {% if 'All' in cat_filters %}checked{% endif %} /> All </li>
+                    <li><input type="checkbox" name="cat" value="Booking" {% if 'Booking' in cat_filters %}checked{% endif %} /> Bookings</li>
+                    <li><input type="checkbox" name="cat" value="Sale" {% if 'Sale' in cat_filters %}checked{% endif %} /> Sales</li>
+                    <li><input type="checkbox" name="cat" value="Rent" {% if 'Rent' in cat_filters %}checked{% endif %} /> Rents</li>
+                    <li><input type="checkbox" name="cat" value="Expense" {% if 'Expense' in cat_filters %}checked{% endif %} /> Expenses</li>
+                    <li><input type="checkbox" name="cat" value="External" {% if 'External' in cat_filters %}checked{% endif %} /> External</li>
+                </ul>
+            </div>
+
+            <input type="date" name="start" value="{{start}}" class="form-control form-control-sm w-auto shadow-sm">
+            <input type="date" name="end" value="{{end}}" class="form-control form-control-sm w-auto shadow-sm">
+            
+            <button type="submit" class="btn btn-sm btn-primary shadow-sm px-3">Apply Filters</button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-5 text-center">
+    <div class="col-md-4"><div class="card p-3 border-start border-5 border-primary"><h6>Revenue (Paid)</h6><h2 class="text-primary fw-bold">₹{{revenue}}</h2></div></div>
+    <div class="col-md-4"><div class="card p-3 border-start border-5 border-danger"><h6>Expenses</h6><h2 class="text-danger fw-bold">₹{{expenses_total}}</h2></div></div>
+    <div class="col-md-4"><div class="card p-3 border-start border-5 border-success"><h6>Net Profit</h6><h2 class="text-success fw-bold">₹{{profit}}</h2></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card p-4 mb-4"><h6>Category Split</h6><canvas id="revChart"></canvas></div>
+		        <div class="card p-4 mb-4">
+            <h6 class="fw-bold mb-3 text-danger">Log Business Expense</h6>
+            <form action="/add_expense" method="POST">
+                <input name="title" class="form-control mb-2" placeholder="Detail (Electricity, Salary)" required>
+                <input name="amount" type="number" class="form-control mb-2" placeholder="Amount" required>
+                <select name="cat" class="form-select mb-2"><option>Electricity</option><option>Salary</option><option>Misc</option></select>
+                <button class="btn btn-danger btn-sm w-100 fw-bold">Add Expense</button>
+            </form>
+        </div>
+
+        <div class="card p-4">
+            <h6 class="fw-bold mb-3 text-success">Log External Partner Income</h6>
+            <form action="/add_external" method="POST">
+                <select name="source" class="form-select mb-2"><option>Playo</option><option>Khelomore</option><option>Other</option></select>
+                <input name="amount" type="number" class="form-control mb-2" placeholder="Amount" required>
+                <input name="date" type="date" class="form-control mb-2">
+				<input name="desc" type="text" class="form-control mb-2">
+                <button class="btn btn-success btn-sm w-100 fw-bold">Add Partner Income</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card p-0 shadow-sm overflow-hidden">
+            <div class="p-3 bg-white border-bottom fw-bold">Unified Transaction Ledger</div>
+            <div class="table-responsive" style="max-height: 500px;">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light small"><tr><th>Date</th><th>Category</th><th>Details</th><th>Status</th><th>Income</th><th>Expense</th></tr></thead>
+                    <tbody class="small">
+                        {% for t in txns %}<tr><td>{{t.timestamp.strftime('%d %b')}}</td><td>{{t.category}}</td><td>{{t.item_name}}</td><td>{{t.status}}</td><td class="text-success">₹{{t.total_sell}}</td><td>-</td></tr>{% endfor %}
+                        {% for p in ext %}<tr><td>{{p.timestamp.strftime('%d %b')}}</td><td>External</td><td>{{p.source}}</td><td>Paid</td><td class="text-success">₹{{p.amount}}</td><td>-</td></tr>{% endfor %}
+                        {% for e in exps %}<tr><td>{{e.timestamp.strftime('%d %b')}}</td><td>Expense</td><td>{{e.title}}</td><td>-</td><td>-</td><td class="text-danger">₹{{e.amount}}</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle dropdown visibility
+    var checkList = document.getElementById('list1');
+    checkList.getElementsByClassName('anchor')[0].onclick = function(evt) {
+        if (checkList.classList.contains('visible'))
+            checkList.classList.remove('visible');
+        else
+            checkList.classList.add('visible');
+    }
+
+    // Close dropdown if user clicks outside of it
+    document.addEventListener('click', function(event) {
+        if (!checkList.contains(event.target)) {
+            checkList.classList.remove('visible');
+        }
+    });
+
+    // Chart logic
+    new Chart(document.getElementById('revChart'), { 
+        type:'doughnut', 
+        data:{ 
+            labels: Object.keys({{chart_data|tojson}}), 
+            datasets:[{
+                data: Object.values({{chart_data|tojson}}), 
+                backgroundColor:['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6']
+            }] 
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
+    });
+</script>
+{% endblock %}
