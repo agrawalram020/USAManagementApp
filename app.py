@@ -127,7 +127,8 @@ def index():
     # Query filtered by India current date
     today_txns = Transaction.query.filter(db.func.date(Transaction.timestamp) == now_ist.date()).order_by(Transaction.timestamp.desc()).all()
     today_total = sum(t.total_sell for t in today_txns if t.status == 'Completed')
-    slots = ["6 AM", "7 AM", "8 AM", "9 AM", "10 AM", "11 AM", "12 PM", "1 PM", "2 PM", "3 PM", "4 PM", "5 PM", "6 PM", "7 PM", "8 PM", "9 PM", "10 PM", "11 PM", "12 AM", "1 AM"]
+    today_txns = Transaction.query.filter(db.func.date(Transaction.timestamp) >= now_ist.date()-timedelta(days=1)).order_by(Transaction.timestamp.desc()).all()
+    slots = ["6 to 7 AM", "7 to 8AM", "8 to 9 AM", "9 to 10 AM", "10 to 11 AM", "11 to 12 AM", "12 to 1 PM", "1 to 2 PM", "2 to 3 PM", "3 to 4 PM", "4 to 5 PM", "5 to 6 PM", "6 to 7 PM", "7 to 8 PM", "8 to 9 PM", "9 to 10 PM", "10 to 11 PM", "11 to 12 PM", "12 to 1 AM", "1 to 2 AM"]
     return render_template('index.html', products=prods, slots=slots, today_txns=today_txns, today_total=today_total)
 
 @app.route('/tasks')
@@ -217,6 +218,8 @@ def complete_txn(id):
     t = Transaction.query.get(id)
     if t:
         t.status = 'Completed'
+        t.timestamp = get_india_time()
+        print('hhh',get_india_time())
         db.session.commit()
     return redirect(url_for('index'))
 
