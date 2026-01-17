@@ -40,7 +40,7 @@
                     <thead class="table-light small"><tr><th>Time</th><th>Item</th><th>Court</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody>{% for t in today_txns %}
                     <tr class="{% if t.status == 'Pending' %}status-pending{% endif %}">
-                        <td class="small">{{t.timestamp.strftime('%H:%M')}}</td>
+                        <td class="small">{{t.timestamp.strftime('%d-%b  %I-%M %p')}}</td>
                         <td><b>{{t.item_name}}</b></td>
                         <td>C{{t.court}}</td>
                         <td>₹{{t.total_sell}}</td>
