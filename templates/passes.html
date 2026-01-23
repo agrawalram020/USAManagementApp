@@ -1,0 +1,111 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm border-0">
+            <h5 class="fw-bold mb-4">Monthly Pass Entry</h5>
+            <form id="passForm" action="/pass/add" method="POST">
+                <div class="mb-2"><label class="small fw-bold">Player Name</label><input name="name" class="form-control" required></div>
+                <div class="mb-2"><label class="small fw-bold">Mobile</label><input name="mobile" class="form-control" required></div>
+                
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <label class="small fw-bold">Court</label>
+                        <select name="court" id="p_court" class="form-select"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <label class="small fw-bold">Slot</label>
+                        <select name="slot" id="p_slot" class="form-select" onchange="updatePrice()">
+                            {% for s in slots %}<option value="{{s}}">{{s}}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="small fw-bold text-primary">Price (Editable)</label>
+                    <input type="number" name="amount" id="p_price" class="form-control fw-bold" value="4900" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 mb-2"><label class="small fw-bold">Start Date</label><input type="date" name="start_date" id="p_start" class="form-control" value="{{today}}" required></div>
+                    <div class="col-6 mb-2"><label class="small fw-bold">End Date</label><input type="date" name="end_date" class="form-control" value="{{default_end}}" required></div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="small fw-bold">Payment Mode</label>
+                    <select name="payment_type" class="form-select">
+                        <option>UPI (Direct)</option>
+                        <option>Cash</option>
+                        <option>Arun Account</option>
+                        <option>Gulesh Account</option>
+                    </select>
+                </div>
+                <div class="mb-3"><label class="small fw-bold">Description</label><textarea name="desc" class="form-control" rows="2"></textarea></div>
+                
+                <button type="button" onclick="validateConflict()" class="btn btn-primary w-100 fw-bold">Activate Pass</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-0 shadow-sm border-0">
+            <div class="p-3 bg-white border-bottom fw-bold">Active Monthly Passes</div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light small">
+                        <tr><th>Player</th><th>Court/Slot</th><th>Validity</th><th>Description</th><th>Paid</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody class="small">
+                        {% for p in passes %}
+                        <tr>
+                            <td><b>{{p.name}}</b><br><small class="text-muted">{{p.mobile}}</small></td>
+                            <td>C{{p.court}} | {{p.slot}}</td>
+                            <td>{{p.start_date.strftime('%d %b')}} to {{p.end_date.strftime('%d %b')}}</td>
+                            <td><small>{{p.description or '-'}}</small></td>
+                            <td class="text-success fw-bold">₹{{p.amount}}</td>
+                            <td>{% if p.end_date >= today %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Expired</span>{% endif %}</td>
+                            <td>{% if session['role'] == 'owner' %}<form action="/pass/delete/{{p.id}}" method="POST"><button class="btn btn-link text-danger p-0">✕</button></form>{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updatePrice() {
+    const slot = document.getElementById('p_slot').value;
+    const priceInput = document.getElementById('p_price');
+    const isPM = slot.includes("PM");
+    const hour = parseInt(slot);
+    // Pricing rule
+    if (isPM && hour >= 5 && hour < 12) { priceInput.value = 5900; } 
+    else { priceInput.value = 4900; }
+}
+
+async function validateConflict() {
+    const payload = {
+        court: document.getElementById('p_court').value,
+        slot: document.getElementById('p_slot').value,
+        start_date: document.getElementById('p_start').value
+    };
+
+    const response = await fetch('/pass/check_conflict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
+    if (result.conflict) {
+        alert(result.message); // The immediate popup
+    } else {
+        document.getElementById('passForm').submit();
+    }
+}
+updatePrice();
+</script>
+{% endblock %}
