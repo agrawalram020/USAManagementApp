@@ -1,0 +1,70 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-12">
+        <div class="row g-3">
+            {% for acc, bal in balances.items() %}
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm border-0 {% if bal < 0 %}bg-danger-subtle text-danger{% else %}bg-white text-success{% endif %}">
+                    <small class="text-muted fw-bold">{{ acc }} Remaining</small>
+                    <h2 class="fw-bold mb-0">₹{{ bal }}</h2>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm border-0">
+            <h5 class="fw-bold mb-4">New Transaction</h5>
+            <form action="/staff_ledger/add" method="POST">
+                <div class="mb-3">
+                    <label class="small fw-bold">Direction</label>
+                    <select name="type" class="form-select">
+                        <option value="Income">Payment Received (IN)</option>
+                        <option value="Expense">Expense Paid (OUT)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">Account / Mode</label>
+                    <select name="account" class="form-select">
+                        <option>Arun Account</option>
+                        <option>Gulesh Account</option>
+                        <option>Cash</option>
+                    </select>
+                </div>
+                <div class="mb-3"><label class="small fw-bold">Amount</label><input type="number" name="amount" class="form-control" required></div>
+                <div class="mb-3"><label class="small fw-bold">Purpose</label><input name="purpose" class="form-control" placeholder="Pass, Water, etc." required></div>
+                <div class="mb-3"><label class="small fw-bold">Notes</label><textarea name="desc" class="form-control" rows="2"></textarea></div>
+                <button class="btn btn-primary w-100 fw-bold">Save Record</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-0 shadow-sm border-0 overflow-hidden">
+            <div class="p-3 bg-white border-bottom fw-bold">Staff Transaction Ledger</div>
+            <div class="table-responsive" style="max-height: 500px;">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light small">
+                        <tr><th>Date/Time</th><th>Account</th><th>Purpose</th><th>In (₹)</th><th>Out (₹)</th><th>By</th></tr>
+                    </thead>
+                    <tbody class="small">
+                        {% for l in logs %}
+                        <tr>
+                            <td>{{ l.timestamp.strftime('%d %b, %H:%M') }}</td>
+                            <td><span class="badge bg-light text-dark">{{ l.account }}</span></td>
+                            <td><b>{{ l.purpose }}</b><br><small class="text-muted">{{ l.description or '' }}</small></td>
+                            <td class="text-success fw-bold">{% if l.type == 'Income' %}{{ l.amount }}{% else %}-{% endif %}</td>
+                            <td class="text-danger fw-bold">{% if l.type == 'Expense' %}{{ l.amount }}{% else %}-{% endif %}</td>
+                            <td>{{ l.created_by }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
