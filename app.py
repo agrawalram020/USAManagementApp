@@ -47,6 +47,21 @@ class Transaction(db.Model):
     created_by = db.Column(db.String(50))
     status = db.Column(db.String(20), default='Completed')
     timestamp = db.Column(db.DateTime, default=get_india_time) # Uses India Time
+    
+class MonthlyPass(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    mobile = db.Column(db.String(20))
+    court = db.Column(db.Integer) # Added field
+    slot = db.Column(db.String(50)) # Added field
+    amount = db.Column(db.Integer)
+    payment_type = db.Column(db.String(50))
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    description = db.Column(db.Text)
+    created_by = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime, default=get_india_time)
 
 class Expense(db.Model):
     __table_args__ = {'schema': 'usam'}
@@ -76,6 +91,17 @@ class Task(db.Model):
     status = db.Column(db.String(20), default='Pending')
     deadline = db.Column(db.Date) # New Field: Deadline
     comments = db.Column(db.Text, default="") # New Field: Comments storage
+    created_by = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime, default=get_india_time)
+    
+class StaffLedger(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(20)) # 'Income' or 'Expense'
+    account = db.Column(db.String(50)) # 'Arun Account', 'Gulesh Account', 'Cash'
+    amount = db.Column(db.Integer)
+    purpose = db.Column(db.String(100))
+    description = db.Column(db.Text)
     created_by = db.Column(db.String(50))
     timestamp = db.Column(db.DateTime, default=get_india_time)
 
@@ -130,6 +156,155 @@ def index():
     today_txns = Transaction.query.filter(db.func.date(Transaction.timestamp) >= now_ist.date()-timedelta(days=1)).order_by(Transaction.timestamp.desc()).all()
     slots = ["6 to 7 AM", "7 to 8AM", "8 to 9 AM", "9 to 10 AM", "10 to 11 AM", "11 to 12 AM", "12 to 1 PM", "1 to 2 PM", "2 to 3 PM", "3 to 4 PM", "4 to 5 PM", "5 to 6 PM", "6 to 7 PM", "7 to 8 PM", "8 to 9 PM", "9 to 10 PM", "10 to 11 PM", "11 to 12 PM", "12 to 1 AM", "1 to 2 AM"]
     return render_template('index.html', products=prods, slots=slots, today_txns=today_txns, today_total=today_total)
+
+# --- Monthly Pass Routes ---
+@app.route('/passes')
+@login_required()
+def passes():
+    all_passes = MonthlyPass.query.order_by(MonthlyPass.timestamp.desc()).all()
+    today = get_india_time().date()
+    default_end = (today + timedelta(days=30)).strftime('%Y-%m-%d')
+    # Define slots here to pass to the template
+    slots = ["6 to 7 AM", "7 to 8AM", "8 to 9 AM", "9 to 10 AM", "10 to 11 AM", "11 to 12 AM", "12 to 1 PM", "1 to 2 PM", "2 to 3 PM", "3 to 4 PM", "4 to 5 PM", "5 to 6 PM", "6 to 7 PM", "7 to 8 PM", "8 to 9 PM", "9 to 10 PM", "10 to 11 PM", "11 to 12 PM", "12 to 1 AM", "1 to 2 AM"]
+    return render_template('passes.html', passes=all_passes, today=today, default_end=default_end, slots=slots)
+
+@app.route('/pass/check_conflict', methods=['POST'])
+@login_required()
+def check_conflict():
+    data = request.json
+    court = int(data.get('court'))
+    slot = data.get('slot')
+    start = datetime.strptime(data.get('start_date'), '%Y-%m-%d').date()
+    
+    # Check for overlapping active passes
+    conflict = MonthlyPass.query.filter(
+        MonthlyPass.court == court,
+        MonthlyPass.slot == slot,
+        MonthlyPass.end_date >= start
+    ).first()
+    
+    if conflict:
+        return jsonify({
+            "conflict": True, 
+            "message": f"Conflict! Court {court} at {slot} is already taken by {conflict.name} until {conflict.end_date.strftime('%d %b')}."
+        })
+    return jsonify({"conflict": False})
+
+@app.route('/pass/add', methods=['POST'])
+@login_required()
+def add_pass():
+    pay_mode = request.form['payment_type']
+    name = request.form['name']
+    amount = int(request.form['amount'])
+    
+    new_pass = MonthlyPass(
+        name=name,
+        mobile=request.form['mobile'],
+        court=int(request.form['court']),
+        slot=request.form['slot'],
+        amount=amount,
+        payment_type=pay_mode,
+        start_date=datetime.strptime(request.form['start_date'], '%Y-%m-%d').date(),
+        end_date=datetime.strptime(request.form['end_date'], '%Y-%m-%d').date(),
+        description=request.form.get('desc', ''),
+        created_by=session['user']
+    )
+    db.session.add(new_pass)
+    
+    # 1. Standard Ledger Entry (For Daily Revenue)
+    txn = Transaction(
+        order_id=str(uuid.uuid4())[:8],
+        item_name=f"Pass: {name}",
+        category='Booking',
+        qty=1,
+        total_sell=amount,
+        total_cost=0,
+        court=new_pass.court,
+        mobile=new_pass.mobile,
+        description=f"Monthly Pass ({pay_mode})",
+        created_by=session['user'],
+        status='Completed'
+    )
+    db.session.add(txn)
+
+    # 2. Automatic StaffLedger Entry for Offline/Staff Payments
+    offline_modes = ['Cash', 'Arun Account', 'Gulesh Account']
+    if pay_mode in offline_modes:
+        staff_log = StaffLedger(
+            type='Income',
+            account=pay_mode,
+            amount=amount,
+            purpose=f"Monthly Pass: {name}",
+            description="Auto-generated from Pass Page",
+            created_by=session['user']
+        )
+        db.session.add(staff_log)
+    
+    db.session.commit()
+    return redirect(url_for('passes'))
+
+@app.route('/pass/delete/<int:id>', methods=['POST'])
+@login_required('owner')
+def delete_pass(id):
+    p = MonthlyPass.query.get(id)
+    if p:
+        db.session.delete(p)
+        db.session.commit()
+    return redirect(url_for('passes'))
+
+@app.route('/staff_ledger')
+@login_required()
+def staff_ledger():
+    logs = StaffLedger.query.order_by(StaffLedger.timestamp.desc()).all()
+    
+    # Calculate current balances held by staff/cash
+    balances = {"Arun Account": 0, "Gulesh Account": 0, "Cash": 0}
+    for log in logs:
+        if log.type == 'Income':
+            balances[log.account] = balances.get(log.account, 0) + log.amount
+        else:
+            balances[log.account] = balances.get(log.account, 0) - log.amount
+            
+    return render_template('staff_ledger.html', logs=logs, balances=balances)
+
+@app.route('/staff_ledger/add', methods=['POST'])
+@login_required()
+def add_staff_log():
+    log_type = request.form.get('type')
+    amount = int(request.form.get('amount'))
+    acc = request.form.get('account')
+    purp = request.form.get('purpose')
+    
+    new_log = StaffLedger(
+        type=log_type,
+        account=acc,
+        amount=amount,
+        purpose=purp,
+        description=request.form.get('desc'),
+        created_by=session['user']
+    )
+    db.session.add(new_log)
+    
+    # Mirroring to Dashboard Analytics
+    if log_type == 'Income':
+        # Counted as External Revenue
+        db.session.add(ExternalProfit(
+            source=f"Staff Col: {acc}",
+            amount=amount,
+            description=f"{purp}",
+            created_by=session['user']
+        ))
+    else:
+        # Counted as Business Expense
+        db.session.add(Expense(
+            title=f"Staff Paid: {purp} ({acc})",
+            amount=amount,
+            category='Misc',
+            created_by=session['user']
+        ))
+        
+    db.session.commit()
+    return redirect(url_for('staff_ledger'))
 
 @app.route('/tasks')
 @login_required()
@@ -219,7 +394,6 @@ def complete_txn(id):
     if t:
         t.status = 'Completed'
         t.timestamp = get_india_time()
-        print('hhh',get_india_time())
         db.session.commit()
     return redirect(url_for('index'))
 
