@@ -52,6 +52,21 @@ class Transaction(db.Model):
     created_by = db.Column(db.String(50))
     status = db.Column(db.String(20), default='Completed')
     timestamp = db.Column(db.DateTime, default=get_india_time) # Uses India Time
+    
+class MonthlyPass(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    mobile = db.Column(db.String(20))
+    court = db.Column(db.Integer) # Added field
+    slot = db.Column(db.String(50)) # Added field
+    amount = db.Column(db.Integer)
+    payment_type = db.Column(db.String(50))
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    description = db.Column(db.Text)
+    created_by = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime, default=get_india_time)
 
 class Expense(db.Model):
     __table_args__ = {'schema': 'usam'}
@@ -81,6 +96,17 @@ class Task(db.Model):
     status = db.Column(db.String(20), default='Pending')
     deadline = db.Column(db.Date) # New Field: Deadline
     comments = db.Column(db.Text, default="") # New Field: Comments storage
+    created_by = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime, default=get_india_time)
+    
+class StaffLedger(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(20)) # 'Income' or 'Expense'
+    account = db.Column(db.String(50)) # 'Arun Account', 'Gulesh Account', 'Cash'
+    amount = db.Column(db.Integer)
+    purpose = db.Column(db.String(100))
+    description = db.Column(db.Text)
     created_by = db.Column(db.String(50))
     timestamp = db.Column(db.DateTime, default=get_india_time)
 
@@ -132,8 +158,158 @@ def index():
     # Query filtered by India current date
     today_txns = Transaction.query.filter(db.func.date(Transaction.timestamp) == now_ist.date()).order_by(Transaction.timestamp.desc()).all()
     today_total = sum(t.total_sell for t in today_txns if t.status == 'Completed')
-    slots = ["6 AM", "7 AM", "8 AM", "9 AM", "10 AM", "11 AM", "12 PM", "1 PM", "2 PM", "3 PM", "4 PM", "5 PM", "6 PM", "7 PM", "8 PM", "9 PM", "10 PM", "11 PM", "12 AM", "1 AM"]
+    today_txns = Transaction.query.filter(db.func.date(Transaction.timestamp) >= now_ist.date()-timedelta(days=1)).order_by(Transaction.timestamp.desc()).all()
+    slots = ["6 to 7 AM", "7 to 8AM", "8 to 9 AM", "9 to 10 AM", "10 to 11 AM", "11 to 12 AM", "12 to 1 PM", "1 to 2 PM", "2 to 3 PM", "3 to 4 PM", "4 to 5 PM", "5 to 6 PM", "6 to 7 PM", "7 to 8 PM", "8 to 9 PM", "9 to 10 PM", "10 to 11 PM", "11 to 12 PM", "12 to 1 AM", "1 to 2 AM"]
     return render_template('index.html', products=prods, slots=slots, today_txns=today_txns, today_total=today_total)
+
+# --- Monthly Pass Routes ---
+@app.route('/passes')
+@login_required()
+def passes():
+    all_passes = MonthlyPass.query.order_by(MonthlyPass.timestamp.desc()).all()
+    today = get_india_time().date()
+    default_end = (today + timedelta(days=30)).strftime('%Y-%m-%d')
+    # Define slots here to pass to the template
+    slots = ["6 to 7 AM", "7 to 8AM", "8 to 9 AM", "9 to 10 AM", "10 to 11 AM", "11 to 12 AM", "12 to 1 PM", "1 to 2 PM", "2 to 3 PM", "3 to 4 PM", "4 to 5 PM", "5 to 6 PM", "6 to 7 PM", "7 to 8 PM", "8 to 9 PM", "9 to 10 PM", "10 to 11 PM", "11 to 12 PM", "12 to 1 AM", "1 to 2 AM"]
+    return render_template('passes.html', passes=all_passes, today=today, default_end=default_end, slots=slots)
+
+@app.route('/pass/check_conflict', methods=['POST'])
+@login_required()
+def check_conflict():
+    data = request.json
+    court = int(data.get('court'))
+    slot = data.get('slot')
+    start = datetime.strptime(data.get('start_date'), '%Y-%m-%d').date()
+    
+    # Check for overlapping active passes
+    conflict = MonthlyPass.query.filter(
+        MonthlyPass.court == court,
+        MonthlyPass.slot == slot,
+        MonthlyPass.end_date >= start
+    ).first()
+    
+    if conflict:
+        return jsonify({
+            "conflict": True, 
+            "message": f"Conflict! Court {court} at {slot} is already taken by {conflict.name} until {conflict.end_date.strftime('%d %b')}."
+        })
+    return jsonify({"conflict": False})
+
+@app.route('/pass/add', methods=['POST'])
+@login_required()
+def add_pass():
+    pay_mode = request.form['payment_type']
+    name = request.form['name']
+    amount = int(request.form['amount'])
+    
+    new_pass = MonthlyPass(
+        name=name,
+        mobile=request.form['mobile'],
+        court=int(request.form['court']),
+        slot=request.form['slot'],
+        amount=amount,
+        payment_type=pay_mode,
+        start_date=datetime.strptime(request.form['start_date'], '%Y-%m-%d').date(),
+        end_date=datetime.strptime(request.form['end_date'], '%Y-%m-%d').date(),
+        description=request.form.get('desc', ''),
+        created_by=session['user']
+    )
+    db.session.add(new_pass)
+    
+    # 1. Standard Ledger Entry (For Daily Revenue)
+    txn = Transaction(
+        order_id=str(uuid.uuid4())[:8],
+        item_name=f"Pass: {name}",
+        category='Booking',
+        qty=1,
+        total_sell=amount,
+        total_cost=0,
+        court=new_pass.court,
+        mobile=new_pass.mobile,
+        description=f"Monthly Pass ({pay_mode})",
+        created_by=session['user'],
+        status='Completed'
+    )
+    db.session.add(txn)
+
+    # 2. Automatic StaffLedger Entry for Offline/Staff Payments
+    offline_modes = ['Cash', 'Arun Account', 'Gulesh Account']
+    if pay_mode in offline_modes:
+        staff_log = StaffLedger(
+            type='Income',
+            account=pay_mode,
+            amount=amount,
+            purpose=f"Monthly Pass: {name}",
+            description="Auto-generated from Pass Page",
+            created_by=session['user']
+        )
+        db.session.add(staff_log)
+    
+    db.session.commit()
+    return redirect(url_for('passes'))
+
+@app.route('/pass/delete/<int:id>', methods=['POST'])
+@login_required('owner')
+def delete_pass(id):
+    p = MonthlyPass.query.get(id)
+    if p:
+        db.session.delete(p)
+        db.session.commit()
+    return redirect(url_for('passes'))
+
+@app.route('/staff_ledger')
+@login_required()
+def staff_ledger():
+    logs = StaffLedger.query.order_by(StaffLedger.timestamp.desc()).all()
+    
+    # Calculate current balances held by staff/cash
+    balances = {"Arun Account": 0, "Gulesh Account": 0, "Cash": 0}
+    for log in logs:
+        if log.type == 'Income':
+            balances[log.account] = balances.get(log.account, 0) + log.amount
+        else:
+            balances[log.account] = balances.get(log.account, 0) - log.amount
+            
+    return render_template('staff_ledger.html', logs=logs, balances=balances)
+
+@app.route('/staff_ledger/add', methods=['POST'])
+@login_required()
+def add_staff_log():
+    log_type = request.form.get('type')
+    amount = int(request.form.get('amount'))
+    acc = request.form.get('account')
+    purp = request.form.get('purpose')
+    
+    new_log = StaffLedger(
+        type=log_type,
+        account=acc,
+        amount=amount,
+        purpose=purp,
+        description=request.form.get('desc'),
+        created_by=session['user']
+    )
+    db.session.add(new_log)
+    
+    # Mirroring to Dashboard Analytics
+    if log_type == 'Income':
+        # Counted as External Revenue
+        db.session.add(ExternalProfit(
+            source=f"Staff Col: {acc}",
+            amount=amount,
+            description=f"{purp}",
+            created_by=session['user']
+        ))
+    else:
+        # Counted as Business Expense
+        db.session.add(Expense(
+            title=f"Staff Paid: {purp} ({acc})",
+            amount=amount,
+            category='Misc',
+            created_by=session['user']
+        ))
+        
+    db.session.commit()
+    return redirect(url_for('staff_ledger'))
 
 @app.route('/tasks')
 @login_required()
@@ -222,6 +398,7 @@ def complete_txn(id):
     t = Transaction.query.get(id)
     if t:
         t.status = 'Completed'
+        t.timestamp = get_india_time()
         db.session.commit()
     return redirect(url_for('index'))
 
@@ -349,6 +526,8 @@ BASE_HTML = r"""
             <a href="/dashboard" class="btn btn-sm btn-outline-light">Analytics</a>
             <a href="/inventory" class="btn btn-sm btn-outline-light">Stock</a>
             {% endif %}
+            <a href="/passes" class="btn btn-sm btn-info text-white">Monthly Pass</a>
+            <a href="/staff_ledger" class="btn btn-sm btn-outline-info text-white">Staff Ledger</a>
             <a href="/tasks" class="btn btn-sm btn-warning">Tasks</a>
             <a href="/" class="btn btn-sm btn-primary">POS</a>
             <a href="/logout" class="btn btn-sm btn-danger">Logout</a>
@@ -362,6 +541,193 @@ BASE_HTML = r"""
     </script>
     {% block scripts %}{% endblock %}
 </body></html>
+"""
+
+
+# --- NEW PASSES HTML ---
+PASSES_HTML = r"""
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm border-0">
+            <h5 class="fw-bold mb-4">Monthly Pass Entry</h5>
+            <form id="passForm" action="/pass/add" method="POST">
+                <div class="mb-2"><label class="small fw-bold">Player Name</label><input name="name" class="form-control" required></div>
+                <div class="mb-2"><label class="small fw-bold">Mobile</label><input name="mobile" class="form-control" required></div>
+                
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <label class="small fw-bold">Court</label>
+                        <select name="court" id="p_court" class="form-select"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <label class="small fw-bold">Slot</label>
+                        <select name="slot" id="p_slot" class="form-select" onchange="updatePrice()">
+                            {% for s in slots %}<option value="{{s}}">{{s}}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="small fw-bold text-primary">Price (Editable)</label>
+                    <input type="number" name="amount" id="p_price" class="form-control fw-bold" value="4900" required>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 mb-2"><label class="small fw-bold">Start Date</label><input type="date" name="start_date" id="p_start" class="form-control" value="{{today}}" required></div>
+                    <div class="col-6 mb-2"><label class="small fw-bold">End Date</label><input type="date" name="end_date" class="form-control" value="{{default_end}}" required></div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="small fw-bold">Payment Mode</label>
+                    <select name="payment_type" class="form-select">
+                        <option>UPI (Direct)</option>
+                        <option>Cash</option>
+                        <option>Arun Account</option>
+                        <option>Gulesh Account</option>
+                    </select>
+                </div>
+                <div class="mb-3"><label class="small fw-bold">Description</label><textarea name="desc" class="form-control" rows="2"></textarea></div>
+                
+                <button type="button" onclick="validateConflict()" class="btn btn-primary w-100 fw-bold">Activate Pass</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-0 shadow-sm border-0">
+            <div class="p-3 bg-white border-bottom fw-bold">Active Monthly Passes</div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light small">
+                        <tr><th>Player</th><th>Court/Slot</th><th>Validity</th><th>Description</th><th>Paid</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody class="small">
+                        {% for p in passes %}
+                        <tr>
+                            <td><b>{{p.name}}</b><br><small class="text-muted">{{p.mobile}}</small></td>
+                            <td>C{{p.court}} | {{p.slot}}</td>
+                            <td>{{p.start_date.strftime('%d %b')}} to {{p.end_date.strftime('%d %b')}}</td>
+                            <td><small>{{p.description or '-'}}</small></td>
+                            <td class="text-success fw-bold">₹{{p.amount}}</td>
+                            <td>{% if p.end_date >= today %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Expired</span>{% endif %}</td>
+                            <td>{% if session['role'] == 'owner' %}<form action="/pass/delete/{{p.id}}" method="POST"><button class="btn btn-link text-danger p-0">✕</button></form>{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updatePrice() {
+    const slot = document.getElementById('p_slot').value;
+    const priceInput = document.getElementById('p_price');
+    const isPM = slot.includes("PM");
+    const hour = parseInt(slot);
+    // Pricing rule
+    if (isPM && hour >= 5 && hour < 12) { priceInput.value = 5900; } 
+    else { priceInput.value = 4900; }
+}
+
+async function validateConflict() {
+    const payload = {
+        court: document.getElementById('p_court').value,
+        slot: document.getElementById('p_slot').value,
+        start_date: document.getElementById('p_start').value
+    };
+
+    const response = await fetch('/pass/check_conflict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    });
+    
+    const result = await response.json();
+    if (result.conflict) {
+        alert(result.message); // The immediate popup
+    } else {
+        document.getElementById('passForm').submit();
+    }
+}
+updatePrice();
+</script>
+{% endblock %}
+"""
+
+STAFFLENDER_HTML = R"""
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-12">
+        <div class="row g-3">
+            {% for acc, bal in balances.items() %}
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm border-0 {% if bal < 0 %}bg-danger-subtle text-danger{% else %}bg-white text-success{% endif %}">
+                    <small class="text-muted fw-bold">{{ acc }} Remaining</small>
+                    <h2 class="fw-bold mb-0">₹{{ bal }}</h2>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4 shadow-sm border-0">
+            <h5 class="fw-bold mb-4">New Transaction</h5>
+            <form action="/staff_ledger/add" method="POST">
+                <div class="mb-3">
+                    <label class="small fw-bold">Direction</label>
+                    <select name="type" class="form-select">
+                        <option value="Income">Payment Received (IN)</option>
+                        <option value="Expense">Expense Paid (OUT)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">Account / Mode</label>
+                    <select name="account" class="form-select">
+                        <option>Arun Account</option>
+                        <option>Gulesh Account</option>
+                        <option>Cash</option>
+                    </select>
+                </div>
+                <div class="mb-3"><label class="small fw-bold">Amount</label><input type="number" name="amount" class="form-control" required></div>
+                <div class="mb-3"><label class="small fw-bold">Purpose</label><input name="purpose" class="form-control" placeholder="Pass, Water, etc." required></div>
+                <div class="mb-3"><label class="small fw-bold">Notes</label><textarea name="desc" class="form-control" rows="2"></textarea></div>
+                <button class="btn btn-primary w-100 fw-bold">Save Record</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-0 shadow-sm border-0 overflow-hidden">
+            <div class="p-3 bg-white border-bottom fw-bold">Staff Transaction Ledger</div>
+            <div class="table-responsive" style="max-height: 500px;">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light small">
+                        <tr><th>Date/Time</th><th>Account</th><th>Purpose</th><th>In (₹)</th><th>Out (₹)</th><th>By</th></tr>
+                    </thead>
+                    <tbody class="small">
+                        {% for l in logs %}
+                        <tr>
+                            <td>{{ l.timestamp.strftime('%d %b, %H:%M') }}</td>
+                            <td><span class="badge bg-light text-dark">{{ l.account }}</span></td>
+                            <td><b>{{ l.purpose }}</b><br><small class="text-muted">{{ l.description or '' }}</small></td>
+                            <td class="text-success fw-bold">{% if l.type == 'Income' %}{{ l.amount }}{% else %}-{% endif %}</td>
+                            <td class="text-danger fw-bold">{% if l.type == 'Expense' %}{{ l.amount }}{% else %}-{% endif %}</td>
+                            <td>{{ l.created_by }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 """
 
 TASKS_HTML = r"""
@@ -490,7 +856,7 @@ INDEX_HTML = r"""
                     <thead class="table-light small"><tr><th>Time</th><th>Item</th><th>Court</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody>{% for t in today_txns %}
                     <tr class="{% if t.status == 'Pending' %}status-pending{% endif %}">
-                        <td class="small">{{t.timestamp.strftime('%H:%M')}}</td>
+                        <td class="small">{{t.timestamp.strftime('%d-%b  %I-%M %p')}}</td>
                         <td><b>{{t.item_name}}</b></td>
                         <td>C{{t.court}}</td>
                         <td>₹{{t.total_sell}}</td>
@@ -782,5 +1148,7 @@ with open('templates/index.html', 'w', encoding='utf-8') as f: f.write(INDEX_HTM
 with open('templates/dashboard.html', 'w', encoding='utf-8') as f: f.write(DASHBOARD_HTML)
 with open('templates/inventory.html', 'w', encoding='utf-8') as f: f.write(INVENTORY_HTML)
 with open('templates/tasks.html', 'w', encoding='utf-8') as f: f.write(TASKS_HTML)
+with open('templates/passes.html', 'w', encoding='utf-8') as f: f.write(PASSES_HTML)
+with open('templates/staff_ledger.html', 'w', encoding='utf-8') as f: f.write(STAFFLENDER_HTML)
 
 print("✅ SUCCESS: Unity ERP v18 with India Timezone (IST) fix applied.")
