@@ -27,6 +27,12 @@
             <a href="/passes" class="btn btn-sm btn-info text-white">Monthly Pass</a>
             <a href="/staff_ledger" class="btn btn-sm btn-outline-info text-white">Staff Ledger</a>
             <a href="/tasks" class="btn btn-sm btn-warning">Tasks</a>
+            <a href="/conflicts" class="btn btn-sm btn-danger position-relative">
+                ⚠️ Conflicts
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="conflictBadge" style="display:none;">
+                    <span id="conflictCount">0</span>
+                </span>
+            </a>
             <a href="/" class="btn btn-sm btn-primary">POS</a>
             <a href="/logout" class="btn btn-sm btn-danger">Logout</a>
         </div>
@@ -36,6 +42,79 @@
         function showLoader() { document.getElementById('loader').style.display = 'flex'; }
         window.addEventListener('beforeunload', showLoader);
         document.querySelectorAll('form').forEach(f => f.addEventListener('submit', function(e) { if(!f.classList.contains('no-loader')) showLoader(); }));
+        
+        // Conflict Notification System
+        function checkConflicts() {
+            fetch('/api/conflicts/unresolved')
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('conflictBadge');
+                    const count = document.getElementById('conflictCount');
+                    
+                    if (data.count > 0) {
+                        badge.style.display = 'inline';
+                        count.textContent = data.count;
+                        
+                        // Show popup notification for new conflicts
+                        if (!window.lastConflictCount || data.count > window.lastConflictCount) {
+                            const recent = data.conflicts[0];
+                            showConflictNotification(recent);
+                        }
+                        window.lastConflictCount = data.count;
+                    } else {
+                        badge.style.display = 'none';
+                        window.lastConflictCount = 0;
+                    }
+                });
+        }
+        
+        function showConflictNotification(conflict) {
+            const alertHTML = `
+                <div class="alert alert-danger alert-dismissible fade show position-fixed" 
+                     role="alert" style="top: 100px; right: 20px; z-index: 10000; width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                    <div style="font-weight: bold; font-size: 18px; margin-bottom: 10px;">⚠️ NEW CONFLICT DETECTED!</div>
+                    <div><strong>Slot:</strong> ${conflict.slot}</div>
+                    <div><strong>Date:</strong> ${conflict.date}</div>
+                    <div><strong>Court:</strong> ${conflict.court}</div>
+                    <div><strong>Playo User:</strong> ${conflict.playo_user}</div>
+                    <div><strong>Khelomore User:</strong> ${conflict.khelomore_user}</div>
+                    <div style="margin-top: 10px;">
+                        <a href="/conflicts" class="btn btn-sm btn-danger" style="text-decoration: none; color: white;">View Conflicts</a>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', alertHTML);
+            
+            // Auto-remove after 8 seconds
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert-danger.position-fixed');
+                if (alerts.length > 0) alerts[0].remove();
+            }, 8000);
+            
+            // Play sound notification
+            playConflictSound();
+        }
+        
+        function playConflictSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+        
+        // Check conflicts every 5 seconds
+        checkConflicts();
+        setInterval(checkConflicts, 5000);
     </script>
     {% block scripts %}{% endblock %}
 </body></html>

@@ -105,6 +105,20 @@ class StaffLedger(db.Model):
     created_by = db.Column(db.String(50))
     timestamp = db.Column(db.DateTime, default=get_india_time)
 
+class Conflict(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    slot = db.Column(db.String(50), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    court = db.Column(db.String(100), nullable=False)
+    playo_user = db.Column(db.String(255))
+    khelomore_user = db.Column(db.String(255))
+    resolved = db.Column(db.Boolean, default=False)
+    resolution_notes = db.Column(db.Text)
+    resolved_by = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime, default=get_india_time)
+    updated_at = db.Column(db.DateTime, default=get_india_time, onupdate=get_india_time)
+
 with app.app_context():
     db.session.execute(text("CREATE SCHEMA IF NOT EXISTS usam;"))
     db.create_all()
@@ -324,6 +338,130 @@ def tasks():
             t.days_left = None
             
     return render_template('tasks.html', tasks=all_tasks, managers=MANAGERS, today=now_ist)
+
+# --- Conflict Management Routes ---
+@app.route('/conflicts')
+@login_required()
+def conflicts():
+    now_ist = get_india_time().date()
+    resolved_filter = request.args.get('filter', 'all')
+    
+    query = Conflict.query.order_by(Conflict.created_at.desc())
+    
+    if resolved_filter == 'resolved':
+        query = query.filter_by(resolved=True)
+    elif resolved_filter == 'unresolved':
+        query = query.filter_by(resolved=False)
+    
+    all_conflicts = query.all()
+    
+    # Get summary
+    total = Conflict.query.count()
+    resolved_count = Conflict.query.filter_by(resolved=True).count()
+    unresolved_count = total - resolved_count
+    
+    return render_template('conflicts.html', 
+                         conflicts=all_conflicts, 
+                         resolved_filter=resolved_filter,
+                         total=total,
+                         resolved=resolved_count,
+                         unresolved=unresolved_count,
+                         today=now_ist)
+
+@app.route('/conflict/add', methods=['POST'])
+@login_required()
+def add_conflict():
+    """Add a new conflict record"""
+    try:
+        data = request.json
+        new_conflict = Conflict(
+            slot=data.get('slot'),
+            date=datetime.strptime(data.get('date'), '%Y-%m-%d').date(),
+            court=data.get('court'),
+            playo_user=data.get('playo_user'),
+            khelomore_user=data.get('khelomore_user'),
+            resolved=False
+        )
+        db.session.add(new_conflict)
+        db.session.commit()
+        
+        return jsonify({
+            "status": "success",
+            "message": f"Conflict recorded - {new_conflict.playo_user} vs {new_conflict.khelomore_user} on {new_conflict.slot}",
+            "conflict": {
+                "id": new_conflict.id,
+                "slot": new_conflict.slot,
+                "date": new_conflict.date.strftime('%Y-%m-%d'),
+                "court": new_conflict.court,
+                "playo_user": new_conflict.playo_user,
+                "khelomore_user": new_conflict.khelomore_user,
+                "resolved": new_conflict.resolved
+            }
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+@app.route('/conflict/resolve/<int:id>', methods=['POST'])
+@login_required('owner')
+def resolve_conflict(id):
+    """Mark conflict as resolved with optional notes"""
+    try:
+        conflict = Conflict.query.get(id)
+        if not conflict:
+            return jsonify({"status": "error", "message": "Conflict not found"}), 404
+        
+        data = request.json
+        conflict.resolved = True
+        conflict.resolution_notes = data.get('notes', '')
+        conflict.resolved_by = session['user']
+        conflict.updated_at = get_india_time()
+        
+        db.session.commit()
+        
+        return jsonify({
+            "status": "success",
+            "message": f"Conflict #{id} marked as resolved"
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+@app.route('/conflict/delete/<int:id>', methods=['POST'])
+@login_required()
+def delete_conflict(id):
+    """Delete a conflict record"""
+    try:
+        conflict = Conflict.query.get(id)
+        if not conflict:
+            return jsonify({"status": "error", "message": "Conflict not found"}), 404
+        
+        db.session.delete(conflict)
+        db.session.commit()
+        
+        return jsonify({
+            "status": "success",
+            "message": f"Conflict #{id} deleted successfully"
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+@app.route('/api/conflicts/unresolved')
+@login_required()
+def get_unresolved_conflicts():
+    """API endpoint for checking unresolved conflicts (for notifications)"""
+    unresolved = Conflict.query.filter_by(resolved=False).order_by(Conflict.created_at.desc()).all()
+    return jsonify({
+        "status": "success",
+        "count": len(unresolved),
+        "conflicts": [{
+            "id": c.id,
+            "slot": c.slot,
+            "date": c.date.strftime('%Y-%m-%d'),
+            "court": c.court,
+            "playo_user": c.playo_user,
+            "khelomore_user": c.khelomore_user,
+            "created_at": c.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        } for c in unresolved]
+    })
 
 @app.route('/task/add', methods=['POST'])
 @login_required('owner')
