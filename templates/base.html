@@ -33,6 +33,20 @@
                     <span id="conflictCount">0</span>
                 </span>
             </a>
+            <div class="position-relative">
+                <button id="notifBell" class="btn btn-sm btn-light position-relative" style="margin-left:8px;">
+                    🔔
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display:none;">
+                        <span id="notificationCount">0</span>
+                    </span>
+                </button>
+                <div id="notificationDropdown" class="card" style="display:none; position:absolute; right:0; top:42px; width:340px; z-index:11000;">
+                    <div class="card-body p-2" id="notificationList" style="max-height:360px; overflow:auto;"></div>
+                    <div class="p-2 text-end">
+                        <button id="markAllReadBtn" class="btn btn-sm btn-secondary">Mark all read</button>
+                    </div>
+                </div>
+            </div>
             <a href="/" class="btn btn-sm btn-primary">POS</a>
             <a href="/logout" class="btn btn-sm btn-danger">Logout</a>
         </div>
@@ -115,6 +129,97 @@
         // Check conflicts every 5 seconds
         checkConflicts();
         setInterval(checkConflicts, 5000);
+
+        // Notification System
+        function checkNotifications() {
+            fetch('/api/notifications/unread_count')
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('notificationBadge');
+                    const count = document.getElementById('notificationCount');
+                    if (data.count > 0) {
+                        badge.style.display = 'inline';
+                        count.textContent = data.count;
+
+                        if (!window.lastNotifCount || data.count > window.lastNotifCount) {
+                            playNotificationSound();
+                        }
+                        window.lastNotifCount = data.count;
+                    } else {
+                        badge.style.display = 'none';
+                        window.lastNotifCount = 0;
+                    }
+                }).catch(e=>console.warn('notif err', e));
+        }
+
+        function playNotificationSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 900;
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) { console.warn('sound fail', e); }
+        }
+
+        function renderNotifications(items) {
+            const list = document.getElementById('notificationList');
+            list.innerHTML = '';
+            if (!items || items.length === 0) {
+                list.innerHTML = '<div class="p-2">No unread notifications</div>';
+                return;
+            }
+            items.forEach(n => {
+                const el = document.createElement('div');
+                el.className = 'p-2 border-bottom';
+                el.innerHTML = `<div style="font-weight:bold;">${n.source}</div>
+                                <div style="font-size:13px; color:#333;">${n.error_message}</div>
+                                <div style="font-size:11px; color:#666;">${n.created_at}</div>`;
+                list.appendChild(el);
+            });
+        }
+
+        function showNotificationDropdown() {
+            const dd = document.getElementById('notificationDropdown');
+            if (dd.style.display === 'none' || !dd.style.display) {
+                fetch('/api/notifications/unread')
+                    .then(r => r.json())
+                    .then(data => {
+                        renderNotifications(data.notifications);
+                        dd.style.display = 'block';
+                        // Mark all shown as read
+                        const ids = data.notifications.map(n => n.id);
+                        if (ids.length) fetch('/api/notifications/mark_read', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ids: ids})}).then(()=>{ setTimeout(checkNotifications, 300); });
+                    });
+            } else {
+                dd.style.display = 'none';
+            }
+        }
+
+        document.getElementById('notifBell').addEventListener('click', function(e){
+            e.stopPropagation();
+            showNotificationDropdown();
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(){
+            const dd = document.getElementById('notificationDropdown');
+            if (dd) dd.style.display = 'none';
+        });
+
+        document.getElementById('markAllReadBtn').addEventListener('click', function(){
+            fetch('/api/notifications/mark_read', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({all:true})})
+                .then(()=>{ document.getElementById('notificationList').innerHTML = '<div class="p-2">No unread notifications</div>'; document.getElementById('notificationBadge').style.display='none'; });
+        });
+
+        // Check notifications every 5 seconds
+        checkNotifications();
+        setInterval(checkNotifications, 5000);
     </script>
     {% block scripts %}{% endblock %}
 </body></html>

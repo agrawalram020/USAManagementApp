@@ -119,6 +119,17 @@ class Conflict(db.Model):
     created_at = db.Column(db.DateTime, default=get_india_time)
     updated_at = db.Column(db.DateTime, default=get_india_time, onupdate=get_india_time)
 
+
+class Notification(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    source = db.Column(db.String(50), nullable=False)
+    booking_date = db.Column(db.Date)
+    court = db.Column(db.String(100))
+    error_message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=get_india_time)
+
 with app.app_context():
     db.session.execute(text("CREATE SCHEMA IF NOT EXISTS usam;"))
     db.create_all()
@@ -126,6 +137,11 @@ with app.app_context():
     try:
         db.session.execute(text("ALTER TABLE usam.task ADD COLUMN IF NOT EXISTS deadline DATE;"))
         db.session.execute(text("ALTER TABLE usam.task ADD COLUMN IF NOT EXISTS comments TEXT DEFAULT '';"))
+        # Ensure notification table has is_read column and create table if missing
+        db.session.execute(text(
+            "CREATE TABLE IF NOT EXISTS usam.notification (id SERIAL PRIMARY KEY, source VARCHAR(50) NOT NULL, booking_date DATE, court VARCHAR(100), error_message TEXT NOT NULL, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"
+        ))
+        db.session.execute(text("ALTER TABLE IF EXISTS usam.notification ADD COLUMN IF NOT EXISTS is_read BOOLEAN DEFAULT FALSE;"))
         db.session.commit()
     except: pass
 
@@ -462,6 +478,59 @@ def get_unresolved_conflicts():
             "created_at": c.created_at.strftime('%Y-%m-%d %H:%M:%S')
         } for c in unresolved]
     })
+
+
+@app.route('/api/notifications/unread_count')
+@login_required()
+def notifications_unread_count():
+    count = Notification.query.filter_by(is_read=False).count()
+    latest = Notification.query.filter_by(is_read=False).order_by(Notification.created_at.desc()).first()
+    latest_item = None
+    if latest:
+        latest_item = {
+            'id': latest.id,
+            'source': latest.source,
+            'booking_date': latest.booking_date.strftime('%Y-%m-%d') if latest.booking_date else None,
+            'court': latest.court,
+            'error_message': latest.error_message,
+            'created_at': latest.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        }
+    return jsonify({'status': 'success', 'count': count, 'latest': latest_item})
+
+
+@app.route('/api/notifications/unread')
+@login_required()
+def notifications_unread_list():
+    items = Notification.query.filter_by(is_read=False).order_by(Notification.created_at.desc()).limit(10).all()
+    return jsonify({
+        'status': 'success',
+        'notifications': [{
+            'id': n.id,
+            'source': n.source,
+            'booking_date': n.booking_date.strftime('%Y-%m-%d') if n.booking_date else None,
+            'court': n.court,
+            'error_message': n.error_message,
+            'created_at': n.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        } for n in items]
+    })
+
+
+@app.route('/api/notifications/mark_read', methods=['POST'])
+@login_required()
+def notifications_mark_read():
+    data = request.json or {}
+    ids = data.get('ids')
+    mark_all = data.get('all', False)
+    try:
+        if mark_all:
+            Notification.query.filter_by(is_read=False).update({'is_read': True})
+        elif ids and isinstance(ids, list):
+            Notification.query.filter(Notification.id.in_(ids)).update({'is_read': True}, synchronize_session=False)
+        db.session.commit()
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 400
 
 @app.route('/task/add', methods=['POST'])
 @login_required('owner')
