@@ -5,6 +5,7 @@ from sqlalchemy import text
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 import uuid
+import os
 
 app = Flask(__name__)
 app.secret_key = 'unity_arena_ultra_v18_premium'
@@ -661,6 +662,72 @@ def dashboard():
     for e in exps: chart_data[f"Exp: {e.category}"] = chart_data.get(f"Exp: {e.category}", 0) + e.amount
 
     return render_template('dashboard.html', revenue=rev, expenses_total=exp_total, profit=rev-exp_total, txns=txns, exps=exps, ext=ext, start=start, end=end, cat_filter=cat_filter, chart_data=chart_data)
+
+
+def gather_revenue_data(interval_days=30):
+    """Collect simple revenue stats over the past interval_days."""
+    cutoff = get_india_time() - timedelta(days=interval_days)
+    txns = Transaction.query.filter(Transaction.timestamp >= cutoff, Transaction.status=='Completed').all()
+    total = sum(t.total_sell for t in txns)
+    by_court = {}
+    by_category = {}
+    for t in txns:
+        by_court[t.court] = by_court.get(t.court, 0) + t.total_sell
+        by_category[t.category] = by_category.get(t.category, 0) + t.total_sell
+    return {
+        'total': total,
+        'count': len(txns),
+        'by_court': by_court,
+        'by_category': by_category,
+        'sample_records': txns[:5]
+    }
+
+
+def revenue_agent_suggestions():
+    stats = gather_revenue_data()
+    text_summary = f"In the past 30 days we had {stats['count']} completed transactions totalling ₹{stats['total']}."
+    text_summary += "\nRevenue by court:\n"
+    for c,v in stats['by_court'].items():
+        text_summary += f"  Court {c}: ₹{v}\n"
+    text_summary += "Revenue by category:\n"
+    for cat,v in stats['by_category'].items():
+        text_summary += f"  {cat}: ₹{v}\n"
+    prompt = (
+        "You are a business analyst for a badminton court facility. "
+        "Based on the following revenue summary, give 3 actionable suggestions to increase revenue, "
+        "considering booking strategies, pricing, promotions, or operational changes.\n"
+        "SUMMARY:\n" + text_summary + "\n"
+    )
+    # try OpenAI if available
+    try:
+        import openai
+        openai.api_key = os.environ.get('OPENAI_API_KEY')
+        if not openai.api_key:
+            raise RuntimeError('OPENAI_API_KEY not set')
+        resp = openai.ChatCompletion.create(
+            model='gpt-4o-mini',
+            messages=[{'role':'system','content':'You provide concise business growth suggestions.'},
+                      {'role':'user','content':prompt}],
+            max_tokens=300
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        # fallback simple heuristics
+        lines = [
+            "- Consider running off-peak discounts to fill slow hours.",
+            "- Introduce monthly membership plans with advance payment.",
+            "- Offer group bookings or corporate packages to increase court utilization."
+        ]
+        return "(fallback suggestions)\n" + "\n".join(lines)
+
+
+@app.route('/agent/revenue', methods=['GET','POST'])
+@login_required('owner')
+def revenue_agent():
+    suggestion = None
+    if request.method == 'POST':
+        suggestion = revenue_agent_suggestions()
+    return render_template('agent.html', suggestion=suggestion)
 
 @app.route('/inventory')
 @login_required('owner')

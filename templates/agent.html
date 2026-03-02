@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h3>Revenue Agent</h3>
+            <p>This tool analyzes recent transactions and gives suggestions to boost badminton court revenue.</p>
+            <form method="POST">
+                <button class="btn btn-primary" type="submit">Run Analysis</button>
+            </form>
+            {% if suggestion %}
+            <hr/>
+            <h5>Suggestions</h5>
+            <pre style="white-space:pre-wrap;">{{ suggestion }}</pre>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
