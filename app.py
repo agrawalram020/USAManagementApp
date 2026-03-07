@@ -6,6 +6,9 @@ from datetime import datetime, timedelta, timezone
 from functools import wraps
 import uuid
 import os
+import requests
+import markdown
+from constant import H_Key
 
 app = Flask(__name__)
 app.secret_key = 'unity_arena_ultra_v18_premium'
@@ -700,17 +703,22 @@ def revenue_agent_suggestions():
     )
     # try OpenAI if available
     try:
-        import openai
-        openai.api_key = os.environ.get('OPENAI_API_KEY')
-        if not openai.api_key:
-            raise RuntimeError('OPENAI_API_KEY not set')
-        resp = openai.ChatCompletion.create(
-            model='gpt-4o-mini',
-            messages=[{'role':'system','content':'You provide concise business growth suggestions.'},
-                      {'role':'user','content':prompt}],
-            max_tokens=300
-        )
-        return resp.choices[0].message.content.strip()
+        API_URL = "https://router.huggingface.co/v1/chat/completions"
+        headers = {"Authorization": f"Bearer {H_Key}",
+                "Content-Type": "application/json"}
+
+        payload = {
+            "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+            "messages": [{"role": "user", "content": prompt}]
+        }  
+        response = requests.post(API_URL, headers=headers, json=payload)
+        if response.status_code == 200:
+            output = response.json().get("choices", [])
+
+            if isinstance(output, list) and len(output) > 0:
+                return output[0].get("message", {}).get("content", "")
+            return f"[fallback] {prompt[:50]}..."
+        return f"[fallback] {prompt[:50]}..."
     except Exception as e:
         # fallback simple heuristics
         lines = [
@@ -726,7 +734,7 @@ def revenue_agent_suggestions():
 def revenue_agent():
     suggestion = None
     if request.method == 'POST':
-        suggestion = revenue_agent_suggestions()
+        suggestion = markdown.markdown(revenue_agent_suggestions())
     return render_template('agent.html', suggestion=suggestion)
 
 @app.route('/inventory')

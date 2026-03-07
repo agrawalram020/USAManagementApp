@@ -12,7 +12,7 @@
             {% if suggestion %}
             <hr/>
             <h5>Suggestions</h5>
-            <pre style="white-space:pre-wrap;">{{ suggestion }}</pre>
+            <div class="markdown-body">{{ suggestion | safe }}</div>
             {% endif %}
         </div>
     </div>
