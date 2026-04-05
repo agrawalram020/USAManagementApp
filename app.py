@@ -146,9 +146,9 @@ with app.app_context():
     except: pass
 
 # --- Auth ---
-USERS = {'ram': 'unity77', 'ranvir': 'unity77', 'amrendra': 'unity77', 'sandeep': 'unity77', 'arun': 'manager123', 'gulesh': 'manager123'}
+USERS = {'ram': 'unity77', 'ranvir': 'unity77', 'amrendra': 'unity77', 'sandeep': 'unity77', 'arun': 'manager123', 'kambale': 'manager123'}
 OWNERS = ['ram', 'ranvir', 'amrendra', 'sandeep']
-MANAGERS = ['Arun', 'Gulesh']
+MANAGERS = ['Arun', 'Kambale']
 
 def login_required(role_needed=None):
     def wrapper(f):
