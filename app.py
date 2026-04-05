@@ -15,7 +15,7 @@ def get_india_time():
     return datetime.now(timezone(timedelta(hours=5, minutes=30))).replace(tzinfo=None)
 
 # --- Database Connection ---
-DB_URL = 'postgresql://neondb_owner:npg_lXSIMtk05eHv@ep-bold-wave-adctsiey-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require'
+DB_URL = 'DB_URL = 'postgresql://usa_user:unity77@localhost:5432/usa_db'
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
