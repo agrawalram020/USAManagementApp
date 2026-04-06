@@ -681,6 +681,28 @@ def add_product():
     db.session.commit()
     return redirect(url_for('inventory'))
 
+@app.route('/product/update/<int:pid>', methods=['POST'])
+@login_required('owner')
+def update_product(pid):
+    p = Product.query.get_or_404(pid)
+    data = request.get_json()
+    p.name = data.get('name', p.name).strip()
+    p.category = data.get('category', p.category)
+    p.buy_price = int(data.get('buy_price', p.buy_price))
+    p.sell_price = int(data.get('sell_price', p.sell_price))
+    p.stock = int(data.get('stock', p.stock))
+    p.low_stock_limit = int(data.get('low_stock_limit', p.low_stock_limit))
+    db.session.commit()
+    return jsonify(success=True)
+
+@app.route('/product/delete/<int:pid>', methods=['POST'])
+@login_required('owner')
+def delete_product(pid):
+    p = Product.query.get_or_404(pid)
+    db.session.delete(p)
+    db.session.commit()
+    return jsonify(success=True)
+
 @app.route('/add_external', methods=['POST'])
 @login_required()
 def add_external():
