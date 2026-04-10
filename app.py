@@ -876,21 +876,20 @@ def manager_bookings():
             for row in playo_data.to_dict(orient='records'):
                 customer = str(row.get('customerName') or '').strip()
                 booking_id = row.get('bookingId')
-                blocked = bool(row.get('blocked'))
-                available = row.get('available')
                 status = str(row.get('status') or '-').strip()
-                # Keep only slot rows that indicate booking/blocking
-                if customer or booking_id or blocked or available in (0, False):
-                    hour = parse_hour(row.get('slotTime'))
-                    court_num = parse_court_number(row.get('courtName'))
-                    if hour is None or court_num not in court_numbers:
-                        continue
-                    slot_label = hour_labels[hour]
-                    playo_grid[slot_label][court_num].append({
-                        'customer': customer or '-',
-                        'status': 'Blocked' if blocked else (status or 'Booked'),
-                        'booking_id': booking_id or '-'
-                    })
+                # Playo business rule: only status "booked" is considered occupied.
+                if status.lower() != 'booked':
+                    continue
+                hour = parse_hour(row.get('slotTime'))
+                court_num = parse_court_number(row.get('courtName'))
+                if hour is None or court_num not in court_numbers:
+                    continue
+                slot_label = hour_labels[hour]
+                playo_grid[slot_label][court_num].append({
+                    'customer': customer or '-',
+                    'status': 'Booked',
+                    'booking_id': booking_id or '-'
+                })
     except Exception as e:
         errors.append(f'Playo fetch error: {str(e)}')
 
