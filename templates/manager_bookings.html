@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .booking-cell {
+        min-width: 155px;
+        vertical-align: top;
+        font-size: 0.78rem;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    .booking-cell .fw-semibold { font-size: 0.78rem; }
+    .booking-cell .badge { font-size: 0.64rem; padding: 0.2rem 0.35rem; }
+    .booking-cell small { font-size: 0.66rem; }
+    .cell-empty { background: #f8fafc; }
+    .cell-booked { background: #eafaf1; }
+    .cell-blocked { background: #fdecec; }
+    .cell-mixed { background: #fff4e8; }
+    .bookings-grid { table-layout: fixed; border-collapse: collapse; }
+    .bookings-grid th,
+    .bookings-grid td { border: 1px solid #d1d5db !important; }
+    .bookings-grid th {
+        background: #eef2f7;
+        font-size: 0.78rem;
+        white-space: nowrap;
+    }
+</style>
+<div class="card p-3 mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+        <div>
+            <h5 class="fw-bold mb-1">Playo vs Khelomore Bookings</h5>
+            <div class="text-muted small">Compare both platforms side by side for a specific date.</div>
+        </div>
+        <form method="GET" action="/manager/bookings" class="d-flex align-items-end gap-2 no-loader">
+            <div>
+                <label class="form-label small fw-bold mb-1">Select Date</label>
+                <input type="date" class="form-control" name="date" value="{{ selected_date }}" required>
+            </div>
+            <button class="btn btn-primary">Load</button>
+        </form>
+    </div>
+</div>
+
+<div class="card p-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="small text-muted">Credentials panel stays hidden by default.</div>
+        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#credentialsPanel" aria-expanded="false" aria-controls="credentialsPanel">Show KM/Playo Keys & Cookies</button>
+    </div>
+    <div class="collapse mt-3" id="credentialsPanel">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <a href="https://ops.khelomore.com/auth/login" target="_blank" class="btn btn-sm btn-outline-dark">Open Khelomore Login</a>
+            <a href="https://dashboard.playo.club/login" target="_blank" class="btn btn-sm btn-outline-dark">Open Playo Login</a>
+            <span class="small text-muted">After login, paste latest cookie/key below and save.</span>
+        </div>
+        <form method="POST" action="/manager/bookings/update_tokens" class="no-loader">
+            <input type="hidden" name="selected_date" value="{{ selected_date }}">
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold mb-1">KM_KEY</label>
+                    <textarea name="km_key" class="form-control form-control-sm" rows="2" placeholder="Bearer ..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold mb-1">KM_COOKIE</label>
+                    <textarea name="km_cookie" class="form-control form-control-sm" rows="2" placeholder="cookie string..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold mb-1">PLAYO_KEY</label>
+                    <textarea name="playo_key" class="form-control form-control-sm" rows="2" placeholder="key..."></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold mb-1">PLAYO_COOKIE</label>
+                    <textarea name="playo_cookie" class="form-control form-control-sm" rows="2" placeholder="cookie string..."></textarea>
+                </div>
+            </div>
+            <div class="mt-2 text-end">
+                <button class="btn btn-sm btn-primary">Save To constant.py</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if success_message %}
+<div class="alert alert-success">{{ success_message }}</div>
+{% endif %}
+
+{% if errors %}
+<div class="alert alert-warning">
+    {% for err in errors %}
+    <div>{{ err }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card p-0">
+            <div class="p-3 border-bottom fw-bold d-flex justify-content-between align-items-center">
+                <span>Playo</span>
+                <span class="badge bg-primary">{{ playo_count }}</span>
+            </div>
+            <div class="px-3 py-2 border-bottom small">
+                <span class="badge" style="background:#ecfdf3;color:#166534;">Booked</span>
+                <span class="badge" style="background:#fef2f2;color:#991b1b;">Blocked</span>
+                <span class="badge" style="background:#fff7ed;color:#9a3412;">Mixed</span>
+                <span class="badge" style="background:#f8fafc;color:#475569;">Empty</span>
+            </div>
+            <div class="table-responsive" style="max-height:65vh; overflow:auto;">
+                <table class="table table-sm table-hover table-bordered mb-0 bookings-grid">
+                    <thead class="table-light" style="position:sticky; top:0; z-index:1;">
+                        <tr>
+                            <th>Time</th>
+                            {% for court in court_numbers %}
+                            <th>Court {{ court }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for label in hour_labels %}
+                        <tr>
+                            <td class="fw-semibold">{{ label }}</td>
+                            {% for court in court_numbers %}
+                            {% set pitems = playo_grid[label][court] %}
+                            {% if not pitems %}
+                                {% set pclass = 'cell-empty' %}
+                            {% elif pitems|length > 1 %}
+                                {% set pclass = 'cell-mixed' %}
+                            {% elif pitems[0].status|string|lower == 'blocked' %}
+                                {% set pclass = 'cell-blocked' %}
+                            {% else %}
+                                {% set pclass = 'cell-booked' %}
+                            {% endif %}
+                            <td class="booking-cell {{ pclass }}">
+                                {% if pitems %}
+                                    {% for item in pitems %}
+                                    <div class="small mb-1">
+                                        <div class="fw-semibold">{{ item.customer }}</div>
+                                        <span class="badge {% if item.status|string|lower == 'blocked' %}bg-danger{% else %}bg-success{% endif %}">{{ item.status }}</span>
+                                        <small class="text-muted">#{{ item.booking_id }}</small>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-0">
+            <div class="p-3 border-bottom fw-bold d-flex justify-content-between align-items-center">
+                <span>Khelomore</span>
+                <span class="badge bg-primary">{{ kmo_count }}</span>
+            </div>
+            <div class="px-3 py-2 border-bottom small">
+                <span class="badge" style="background:#ecfdf3;color:#166534;">Booked</span>
+                <span class="badge" style="background:#fef2f2;color:#991b1b;">Blocked</span>
+                <span class="badge" style="background:#fff7ed;color:#9a3412;">Mixed</span>
+                <span class="badge" style="background:#f8fafc;color:#475569;">Empty</span>
+            </div>
+            <div class="table-responsive" style="max-height:65vh; overflow:auto;">
+                <table class="table table-sm table-hover table-bordered mb-0 bookings-grid">
+                    <thead class="table-light" style="position:sticky; top:0; z-index:1;">
+                        <tr>
+                            <th>Time</th>
+                            {% for court in court_numbers %}
+                            <th>Court {{ court }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for label in hour_labels %}
+                        <tr>
+                            <td class="fw-semibold">{{ label }}</td>
+                            {% for court in court_numbers %}
+                            {% set kitems = kmo_grid[label][court] %}
+                            {% if not kitems %}
+                                {% set kclass = 'cell-empty' %}
+                            {% elif kitems|length > 1 %}
+                                {% set kclass = 'cell-mixed' %}
+                            {% elif 'block' in (kitems[0].status|string|lower) %}
+                                {% set kclass = 'cell-blocked' %}
+                            {% else %}
+                                {% set kclass = 'cell-booked' %}
+                            {% endif %}
+                            <td class="booking-cell {{ kclass }}">
+                                {% if kitems %}
+                                    {% for item in kitems %}
+                                    <div class="small mb-1">
+                                        <div class="fw-semibold">{{ item.customer }}</div>
+                                        <span class="badge {% if 'block' in (item.status|string|lower) %}bg-danger{% else %}bg-success{% endif %}" title="{{ item.status_full or item.status }}">{{ item.status }}</span>
+                                        <small class="text-muted">{{ item.reason }}</small>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

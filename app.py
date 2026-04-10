@@ -5,6 +5,11 @@ from sqlalchemy import text
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 import uuid
+import re
+import json
+from pathlib import Path
+from kmo import KMO
+from playoo import PlayoO
 
 app = Flask(__name__)
 app.secret_key = 'unity_arena_ultra_v18_premium'
@@ -771,6 +776,217 @@ def add_expense():
     db.session.add(Expense(title=request.form['title'], amount=int(request.form['amount']), category=request.form['cat'], created_by=session['user'], timestamp=get_india_time()))
     db.session.commit()
     return redirect(url_for('dashboard'))
+
+# --- Booking Comparison (Playo vs Khelomore) ---
+@app.route('/manager/bookings')
+@login_required(['owner', 'manager'])
+def manager_bookings():
+    today = get_india_time().date()
+    selected_date = request.args.get('date', today.strftime('%Y-%m-%d'))
+    errors = []
+    success_message = request.args.get('cred_status', '')
+
+    try:
+        datetime.strptime(selected_date, '%Y-%m-%d')
+    except ValueError:
+        selected_date = today.strftime('%Y-%m-%d')
+        errors.append('Invalid date selected. Showing today instead.')
+
+    court_numbers = [1, 2, 3, 4]
+    hour_labels = [f"{h:02d}:00 - {(h + 1) % 24:02d}:00" for h in range(24)]
+    playo_grid = {label: {c: [] for c in court_numbers} for label in hour_labels}
+    kmo_grid = {label: {c: [] for c in court_numbers} for label in hour_labels}
+
+    def parse_hour(time_val):
+        if not time_val:
+            return None
+        text_val = str(time_val).strip()
+        formats = ['%H:%M:%S', '%H:%M', '%I:%M %p', '%I:%M%p', '%H']
+        for fmt in formats:
+            try:
+                return datetime.strptime(text_val, fmt).hour
+            except ValueError:
+                continue
+        if 'T' in text_val:
+            try:
+                return datetime.fromisoformat(text_val.replace('Z', '+00:00')).hour
+            except ValueError:
+                pass
+        return None
+
+    def parse_minutes(time_val):
+        if not time_val:
+            return None
+        text_val = str(time_val).strip()
+        formats = ['%H:%M:%S', '%H:%M', '%I:%M %p', '%I:%M%p', '%H']
+        for fmt in formats:
+            try:
+                parsed = datetime.strptime(text_val, fmt)
+                return parsed.hour * 60 + parsed.minute
+            except ValueError:
+                continue
+        if 'T' in text_val:
+            try:
+                parsed = datetime.fromisoformat(text_val.replace('Z', '+00:00'))
+                return parsed.hour * 60 + parsed.minute
+            except ValueError:
+                pass
+        return None
+
+    def expand_hours(start_time, end_time):
+        start_m = parse_minutes(start_time)
+        end_m = parse_minutes(end_time)
+        if start_m is None:
+            return []
+        if end_m is None:
+            return [start_m // 60]
+
+        # Handle overnight slots by rolling end to next day.
+        if end_m <= start_m:
+            end_m += 24 * 60
+
+        start_h = start_m // 60
+        end_h = (end_m - 1) // 60
+        return [h % 24 for h in range(start_h, end_h + 1)]
+
+    def parse_court_number(court_name):
+        if not court_name:
+            return None
+        match = re.search(r'([1-4])', str(court_name))
+        if not match:
+            return None
+        return int(match.group(1))
+
+    def normalize_kmo_status(status_raw):
+        status_text = str(status_raw or '').strip()
+        lowered = status_text.lower()
+        if 'bulk slots blocked by vendor' in lowered or 'blocked by vendor' in lowered:
+            return 'Vendor Block', status_text or 'Blocked by Vendor'
+        if not status_text:
+            return '-', '-'
+        if status_text.isupper() and len(status_text) > 3:
+            return status_text.title(), status_text
+        return status_text, status_text
+
+    try:
+        playo_data = PlayoO().extract_all_data(selected_date)
+        if isinstance(playo_data, dict):
+            errors.append(playo_data.get('message', 'Could not fetch Playo data.'))
+        elif playo_data is not None and not playo_data.empty:
+            for row in playo_data.to_dict(orient='records'):
+                customer = str(row.get('customerName') or '').strip()
+                booking_id = row.get('bookingId')
+                blocked = bool(row.get('blocked'))
+                available = row.get('available')
+                status = str(row.get('status') or '-').strip()
+                # Keep only slot rows that indicate booking/blocking
+                if customer or booking_id or blocked or available in (0, False):
+                    hour = parse_hour(row.get('slotTime'))
+                    court_num = parse_court_number(row.get('courtName'))
+                    if hour is None or court_num not in court_numbers:
+                        continue
+                    slot_label = hour_labels[hour]
+                    playo_grid[slot_label][court_num].append({
+                        'customer': customer or '-',
+                        'status': 'Blocked' if blocked else (status or 'Booked'),
+                        'booking_id': booking_id or '-'
+                    })
+    except Exception as e:
+        errors.append(f'Playo fetch error: {str(e)}')
+
+    try:
+        kmo = KMO()
+        for court_name in ['Court_1', 'Court_2', 'Court_3', 'Court_4']:
+            court_df = kmo.extract_relevant_data(selected_date, court_name)
+            if court_df is None:
+                continue
+            if court_df.empty:
+                continue
+            for row in court_df.to_dict(orient='records'):
+                status_text = str(row.get('timeslotStatus') or '').strip().lower()
+                reason = str(row.get('timeslotReason') or '').strip()
+                customer = str(row.get('customerName') or '').strip()
+                booking_id = row.get('bookingId')
+                if customer or reason or booking_id or status_text not in ('', 'available', 'open', 'unblocked'):
+                    hours = expand_hours(row.get('startTime'), row.get('endTime'))
+                    if not hours:
+                        hour = parse_hour(row.get('startTime'))
+                        hours = [hour] if hour is not None else []
+                    court_num = parse_court_number(row.get('propertyName') or court_name)
+                    if not hours or court_num not in court_numbers:
+                        continue
+                    display_status, full_status = normalize_kmo_status(row.get('timeslotStatus'))
+                    reason_clean = reason if reason.lower() not in ('na', 'n/a', 'none', 'null', '-') else '-'
+                    for hour in hours:
+                        slot_label = hour_labels[hour]
+                        kmo_grid[slot_label][court_num].append({
+                            'customer': customer or '-',
+                            'status': display_status,
+                            'status_full': full_status,
+                            'reason': reason_clean
+                        })
+    except Exception as e:
+        errors.append(f'Khelomore fetch error: {str(e)}')
+
+    playo_count = sum(
+        len(playo_grid[label][court])
+        for label in hour_labels
+        for court in court_numbers
+    )
+    kmo_count = sum(
+        len(kmo_grid[label][court])
+        for label in hour_labels
+        for court in court_numbers
+    )
+
+    return render_template(
+        'manager_bookings.html',
+        selected_date=selected_date,
+        hour_labels=hour_labels,
+        court_numbers=court_numbers,
+        playo_grid=playo_grid,
+        kmo_grid=kmo_grid,
+        playo_count=playo_count,
+        kmo_count=kmo_count,
+        errors=errors,
+        success_message=success_message
+    )
+
+
+@app.route('/manager/bookings/update_tokens', methods=['POST'])
+@login_required(['owner', 'manager'])
+def manager_update_tokens():
+    selected_date = request.form.get('selected_date') or get_india_time().strftime('%Y-%m-%d')
+    km_cookie = (request.form.get('km_cookie') or '').strip()
+    km_key = (request.form.get('km_key') or '').strip()
+    playo_cookie = (request.form.get('playo_cookie') or '').strip()
+    playo_key = (request.form.get('playo_key') or '').strip()
+
+    if not any([km_cookie, km_key, playo_cookie, playo_key]):
+        return redirect(url_for('manager_bookings', date=selected_date, cred_status='No values submitted.'))
+
+    constant_path = Path(__file__).resolve().parent / 'constant.py'
+    content = constant_path.read_text(encoding='utf-8')
+
+    def upsert_literal(src, key_name, value):
+        if not value:
+            return src
+        quoted = json.dumps(value)
+        pattern = rf'^{key_name}\s*=\s*".*"$'
+        replacement = f'{key_name}={quoted}'
+        updated, count = re.subn(pattern, replacement, src, flags=re.MULTILINE)
+        if count == 0:
+            updated = updated.rstrip() + f'\n{replacement}\n'
+        return updated
+
+    content = upsert_literal(content, 'KM_COOKIE', km_cookie)
+    content = upsert_literal(content, 'KM_KEY', km_key)
+    content = upsert_literal(content, 'PLAYO_COOKIE', playo_cookie)
+    content = upsert_literal(content, 'PLAYO_KEY', playo_key)
+
+    constant_path.write_text(content, encoding='utf-8')
+
+    return redirect(url_for('manager_bookings', date=selected_date, cred_status='Credentials updated in constant.py'))
 
 # --- Coaching Students Routes ---
 @app.route('/coaching')

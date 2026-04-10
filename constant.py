@@ -8,8 +8,8 @@ KHELOMORE_URL = "https://ops.khelomore.com/office/graphql"
 KM_KEY = os.getenv("KM_KEY", "")
 KM_COOKIE = os.getenv("KM_COOKIE", "")
 
-KM_COOKIE="ajs_anonymous_id=8cc59744-7427-43a3-8b71-927a57901094; WZRK_G=a79f93b8920b45a9b0bd962ba7726b43; WZRK_S_4W7-R5K-Z95Z=%7B%22p%22%3A1%7D"
-KM_KEY="Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NzUzNTA4OTYsInV1aWQiOiI4MjZlNWVlMy1iM2M5LTQyYWEtYjJiYy00NjUxZDgyMmNhMjQiLCJpYXQiOjE3NzI3MjI4OTZ9.EpCykFGJhzZBF65ONw_MU9ETssWGDjdeQLsB3PBkzAfPYaXpdxo38al_6xV16Z6_491WV5kFURhIadEvkqvT2w"
+KM_COOKIE="WZRK_G=c67204cae6bb4b019c9a9c42ae9a3bbf; ajs_anonymous_id=1852c5ab-9a94-469b-ba4d-ce0f2ae8b942; mp_2d815128587eeadc1eb7036fbf08a5d3_mixpanel=%7B%22distinct_id%22%3A%20%22%24device%3A19707a4c7cd249-0e789d026da37b-4c657b58-144000-19707a4c7cd249%22%2C%22%24device_id%22%3A%20%2219707a4c7cd249-0e789d026da37b-4c657b58-144000-19707a4c7cd249%22%2C%22%24search_engine%22%3A%20%22bing%22%2C%22%24initial_referrer%22%3A%20%22https%3A%2F%2Fwww.bing.com%2F%22%2C%22%24initial_referring_domain%22%3A%20%22www.bing.com%22%7D; WZRK_S_4W7-R5K-Z95Z=%7B%22p%22%3A2%7D"
+KM_KEY="Bearer eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3Nzg0NTAxNDQsInV1aWQiOiIzZTMxYzUyNy1jNzI4LTQyOWUtODMzYS1hYWRkNzRiMGZkNzUiLCJpYXQiOjE3NzU4MjIxNDR9.vdshWnPsqM61W0UOw8ueHZ71EmaSkOuA0DjdBFmV-48sCY7wjFTY9e0aQxjUxZVAI41XMvUSSYunQBp-ocb2tw"
 
 
 
@@ -47,9 +47,9 @@ PLAYO_CANCEL_URL = "https://api.playo.io/controller/ppc/booking/cancellation"
 
 PLAYO_KEY = os.getenv("PLAYO_KEY", "")
 PLAYO_COOKIE = os.getenv("PLAYO_COOKIE", "")
-PLAYO_COOKIE="AWSALBAPP-0=_remove_; AWSALBAPP-1=_remove_; AWSALBAPP-2=_remove_; AWSALBAPP-3=_remove_; connect.sid=s%3AgMS4nS_YxIEP8GckJ9yu4GAuxGJXZIRA.FMVGwJFV1sN5NvDOQ0Q8LCEaTYagbUCP%2FtzOoC0SVcw"
-PLAYO_KEY="cc376950-003b-11f1-8c87-b1c55b4a6963:c3288502-004d-4315-b174-c9d7e1b1efa6"
-DATABASE_URL="postgresql://neondb_owner:npg_lXSIMtk05eHv@ep-bold-wave-adctsiey-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+PLAYO_COOKIE="connect.sid=s%3AJxgaodwFUljWcSxVW3kFSDGHo9tZN6TT.2qmnj2KfeAHYfaoU3Tp5z0Aa528kVqZd47ZNT5QiCKs; AWSALBAPP-0=_remove_; AWSALBAPP-1=_remove_; AWSALBAPP-2=_remove_; AWSALBAPP-3=_remove_"
+PLAYO_KEY="271df870-34d5-11f1-9531-d7c0a3b21de7:c3288502-004d-4315-b174-c9d7e1b1efa6"
+# DATABASE_URL="postgresql://neondb_owner:npg_lXSIMtk05eHv@ep-bold-wave-adctsiey-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 
 PLAYO_HEADERS = {
