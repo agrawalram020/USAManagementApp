@@ -18,13 +18,19 @@
 <body>
     <div id="loader"><div class="spinner"></div></div>
     <nav class="navbar navbar-expand-lg navbar-dark shadow mb-4">
-        <a class="navbar-brand fw-bold" href="/">🏸 Unity Shuttle Arena</a>
+        <a class="navbar-brand fw-bold" href="{% if session['role'] == 'coach' %}/coaching{% else %}/{% endif %}">🏸 Unity Shuttle Arena</a>
         <div class="ms-auto d-flex align-items-center gap-2">
+            {% if session['role'] != 'coach' %}
             {% if session['role'] == 'owner' %}
             <a href="/dashboard" class="btn btn-sm btn-outline-light">Analytics</a>
             <a href="/inventory" class="btn btn-sm btn-outline-light">Stock</a>
             {% endif %}
             <a href="/passes" class="btn btn-sm btn-info text-white">Monthly Pass</a>
+            {% endif %}
+            {% if session['role'] in ['owner', 'coach'] %}
+            <a href="/coaching" class="btn btn-sm btn-outline-warning text-white">🎓 Coaching</a>
+            {% endif %}
+            {% if session['role'] != 'coach' %}
             <a href="/staff_ledger" class="btn btn-sm btn-outline-info text-white">Staff Ledger</a>
             <a href="/tasks" class="btn btn-sm btn-warning">Tasks</a>
             <a href="/conflicts" class="btn btn-sm btn-danger position-relative">
@@ -48,6 +54,7 @@
                 </div>
             </div>
             <a href="/" class="btn btn-sm btn-primary">POS</a>
+            {% endif %}
             <a href="/logout" class="btn btn-sm btn-danger">Logout</a>
         </div>
     </nav>

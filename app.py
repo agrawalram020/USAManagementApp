@@ -130,6 +130,20 @@ class Notification(db.Model):
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=get_india_time)
 
+class CoachingStudent(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20))
+    batch_timing = db.Column(db.String(100))
+    package = db.Column(db.String(100))
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
+    fees = db.Column(db.Integer, default=0)
+    notes = db.Column(db.Text)
+    created_by = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime, default=get_india_time)
+
 with app.app_context():
     db.session.execute(text("CREATE SCHEMA IF NOT EXISTS usam;"))
     db.create_all()
@@ -145,17 +159,49 @@ with app.app_context():
         db.session.commit()
     except: pass
 
+with app.app_context():
+    try:
+        db.session.execute(text("""
+            CREATE TABLE IF NOT EXISTS usam.coaching_student (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                phone VARCHAR(20),
+                batch_timing VARCHAR(100),
+                package VARCHAR(100),
+                notes TEXT,
+                created_by VARCHAR(50),
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """))
+        db.session.execute(text("ALTER TABLE usam.coaching_student ADD COLUMN IF NOT EXISTS start_date DATE;"))
+        db.session.execute(text("ALTER TABLE usam.coaching_student ADD COLUMN IF NOT EXISTS end_date DATE;"))
+        db.session.execute(text("ALTER TABLE usam.coaching_student ADD COLUMN IF NOT EXISTS fees INTEGER DEFAULT 0;"))
+        db.session.commit()
+    except: pass
+
 # --- Auth ---
-USERS = {'ram': 'unity77', 'ranvir': 'unity77', 'amrendra': 'unity77', 'sandeep': 'unity77', 'arun': 'manager123', 'kambale': 'manager123'}
+USERS = {'ram': 'unity77', 'ranvir': 'unity77', 'amrendra': 'unity77', 'sandeep': 'unity77', 'arun': 'manager123', 'kambale': 'manager123', 'kritika': 'coach77'}
 OWNERS = ['ram', 'ranvir', 'amrendra', 'sandeep']
 MANAGERS = ['Arun', 'Kambale']
+COACHES = ['kritika']
 
 def login_required(role_needed=None):
     def wrapper(f):
         @wraps(f)
         def decorated(*args, **kwargs):
             if 'user' not in session: return redirect(url_for('login'))
-            if role_needed == 'owner' and session.get('role') != 'owner': return "Unauthorized", 403
+            if role_needed:
+                user_role = session.get('role')
+                if isinstance(role_needed, (list, tuple, set)):
+                    if user_role not in role_needed:
+                        return "Unauthorized", 403
+                elif user_role != role_needed:
+                    return "Unauthorized", 403
+            # Coaches can only access coaching pages
+            if session.get('role') == 'coach' and role_needed != 'coach':
+                from flask import request as req
+                if not req.path.startswith('/coaching') and req.path != '/logout':
+                    return redirect(url_for('coaching'))
             return f(*args, **kwargs)
         return decorated
     return wrapper
@@ -166,7 +212,14 @@ def login():
         u, p = request.form.get('user').lower(), request.form.get('pass')
         if u in USERS and USERS[u] == p:
             session['user'] = u.capitalize()
-            session['role'] = 'owner' if u in OWNERS else 'manager'
+            if u in OWNERS:
+                session['role'] = 'owner'
+            elif u in COACHES:
+                session['role'] = 'coach'
+            else:
+                session['role'] = 'manager'
+            if session['role'] == 'coach':
+                return redirect(url_for('coaching'))
             return redirect(url_for('index'))
     return render_template('login.html')
 
@@ -718,6 +771,59 @@ def add_expense():
     db.session.add(Expense(title=request.form['title'], amount=int(request.form['amount']), category=request.form['cat'], created_by=session['user'], timestamp=get_india_time()))
     db.session.commit()
     return redirect(url_for('dashboard'))
+
+# --- Coaching Students Routes ---
+@app.route('/coaching')
+@login_required(['owner', 'coach'])
+def coaching():
+    students = CoachingStudent.query.order_by(CoachingStudent.timestamp.desc()).all()
+    today = get_india_time().date()
+    return render_template('coaching.html', students=students, today=today)
+
+@app.route('/coaching/add', methods=['POST'])
+@login_required(['owner', 'coach'])
+def add_coaching_student():
+    start_raw = request.form.get('start_date')
+    end_raw = request.form.get('end_date')
+    s = CoachingStudent(
+        name=request.form['name'],
+        phone=request.form.get('phone', ''),
+        batch_timing=request.form.get('batch_timing', ''),
+        package=request.form.get('package', ''),
+        start_date=datetime.strptime(start_raw, '%Y-%m-%d').date() if start_raw else None,
+        end_date=datetime.strptime(end_raw, '%Y-%m-%d').date() if end_raw else None,
+        fees=int(request.form.get('fees') or 0),
+        notes=request.form.get('notes', ''),
+        created_by=session['user']
+    )
+    db.session.add(s)
+    db.session.commit()
+    return redirect(url_for('coaching'))
+
+@app.route('/coaching/edit/<int:id>', methods=['POST'])
+@login_required(['owner', 'coach'])
+def edit_coaching_student(id):
+    s = CoachingStudent.query.get_or_404(id)
+    start_raw = request.form.get('start_date')
+    end_raw = request.form.get('end_date')
+    s.name = request.form['name']
+    s.phone = request.form.get('phone', '')
+    s.batch_timing = request.form.get('batch_timing', '')
+    s.package = request.form.get('package', '')
+    s.start_date = datetime.strptime(start_raw, '%Y-%m-%d').date() if start_raw else None
+    s.end_date = datetime.strptime(end_raw, '%Y-%m-%d').date() if end_raw else None
+    s.fees = int(request.form.get('fees') or 0)
+    s.notes = request.form.get('notes', '')
+    db.session.commit()
+    return redirect(url_for('coaching'))
+
+@app.route('/coaching/delete/<int:id>', methods=['POST'])
+@login_required('owner')
+def delete_coaching_student(id):
+    s = CoachingStudent.query.get_or_404(id)
+    db.session.delete(s)
+    db.session.commit()
+    return redirect(url_for('coaching'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
