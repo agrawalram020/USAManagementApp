@@ -135,6 +135,16 @@ class Notification(db.Model):
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=get_india_time)
 
+class CoachingBatch(db.Model):
+    __table_args__ = {'schema': 'usam'}
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    start_time = db.Column(db.String(10))
+    end_time = db.Column(db.String(10))
+    package = db.Column(db.String(100))
+    fees = db.Column(db.Integer, default=0)
+    timestamp = db.Column(db.DateTime, default=get_india_time)
+
 class CoachingStudent(db.Model):
     __table_args__ = {'schema': 'usam'}
     id = db.Column(db.Integer, primary_key=True)
@@ -181,6 +191,17 @@ with app.app_context():
         db.session.execute(text("ALTER TABLE usam.coaching_student ADD COLUMN IF NOT EXISTS start_date DATE;"))
         db.session.execute(text("ALTER TABLE usam.coaching_student ADD COLUMN IF NOT EXISTS end_date DATE;"))
         db.session.execute(text("ALTER TABLE usam.coaching_student ADD COLUMN IF NOT EXISTS fees INTEGER DEFAULT 0;"))
+        db.session.execute(text("""
+            CREATE TABLE IF NOT EXISTS usam.coaching_batch (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100),
+                start_time VARCHAR(10),
+                end_time VARCHAR(10),
+                package VARCHAR(100),
+                fees INTEGER DEFAULT 0,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """))
         db.session.commit()
     except: pass
 
@@ -987,13 +1008,37 @@ def manager_update_tokens():
 
     return redirect(url_for('manager_bookings', date=selected_date, cred_status='Credentials updated in constant.py'))
 
-# --- Coaching Students Routes ---
+# --- Coaching Routes ---
 @app.route('/coaching')
 @login_required(['owner', 'coach'])
 def coaching():
     students = CoachingStudent.query.order_by(CoachingStudent.timestamp.desc()).all()
+    batches = CoachingBatch.query.order_by(CoachingBatch.start_time).all()
     today = get_india_time().date()
-    return render_template('coaching.html', students=students, today=today)
+    batch_counts = {b.id: CoachingStudent.query.filter_by(batch_timing=f"{b.start_time} - {b.end_time}").count() for b in batches}
+    return render_template('coaching.html', students=students, batches=batches, batch_counts=batch_counts, today=today)
+
+@app.route('/coaching/batch/add', methods=['POST'])
+@login_required('owner')
+def add_coaching_batch():
+    b = CoachingBatch(
+        name=request.form.get('name', ''),
+        start_time=request.form.get('start_time', ''),
+        end_time=request.form.get('end_time', ''),
+        package=request.form.get('package', ''),
+        fees=int(request.form.get('fees') or 0),
+    )
+    db.session.add(b)
+    db.session.commit()
+    return redirect(url_for('coaching'))
+
+@app.route('/coaching/batch/delete/<int:id>', methods=['POST'])
+@login_required('owner')
+def delete_coaching_batch(id):
+    b = CoachingBatch.query.get_or_404(id)
+    db.session.delete(b)
+    db.session.commit()
+    return redirect(url_for('coaching'))
 
 @app.route('/coaching/add', methods=['POST'])
 @login_required(['owner', 'coach'])
