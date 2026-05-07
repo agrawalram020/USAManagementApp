@@ -1019,7 +1019,7 @@ def coaching():
     return render_template('coaching.html', students=students, batches=batches, batch_counts=batch_counts, today=today)
 
 @app.route('/coaching/batch/add', methods=['POST'])
-@login_required('owner')
+@login_required(['owner', 'coach'])
 def add_coaching_batch():
     b = CoachingBatch(
         name=request.form.get('name', ''),
@@ -1033,7 +1033,7 @@ def add_coaching_batch():
     return redirect(url_for('coaching'))
 
 @app.route('/coaching/batch/delete/<int:id>', methods=['POST'])
-@login_required('owner')
+@login_required(['owner', 'coach'])
 def delete_coaching_batch(id):
     b = CoachingBatch.query.get_or_404(id)
     db.session.delete(b)
@@ -1078,7 +1078,7 @@ def edit_coaching_student(id):
     return redirect(url_for('coaching'))
 
 @app.route('/coaching/delete/<int:id>', methods=['POST'])
-@login_required('owner')
+@login_required(['owner', 'coach'])
 def delete_coaching_student(id):
     s = CoachingStudent.query.get_or_404(id)
     db.session.delete(s)
