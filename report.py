@@ -7,7 +7,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from collections import defaultdict
 
-REPORT_TO = 'ranvirkpoddar@gmail.com'
+REPORT_TO = [
+    'ranvirkpoddar@gmail.com',
+    'agrawalram020@gmail.com',
+    'sande2891@gmail.com',
+    'amrendra.ks@outlook.com'
+]
+
 IST = timezone(timedelta(hours=5, minutes=30))
 
 smtp_server = "smtp.gmail.com"
@@ -284,7 +290,7 @@ def send_daily_report(app, db, Transaction, MonthlyPass, CoachingStudent, Coachi
         msg = MIMEMultipart('alternative')
         msg['Subject'] = f"USA Daily Report — {report_date.strftime('%d %b %Y')}"
         msg['From'] = email_user
-        msg['To'] = REPORT_TO
+        msg['To'] = ', '.join(REPORT_TO)
         msg.attach(MIMEText(html, 'html'))
 
         with smtplib.SMTP(smtp_server, smtp_port, timeout=20) as server:
@@ -295,7 +301,7 @@ def send_daily_report(app, db, Transaction, MonthlyPass, CoachingStudent, Coachi
             server.login(email_user, email_pass)
             server.sendmail(email_user, REPORT_TO, msg.as_string())
 
-        print(f'[report] Daily report for {report_date} sent to {REPORT_TO}')
+        print(f'[report] Daily report for {report_date} sent')
     except Exception as e:
         print(f'[report] Failed to send report: {e}')
         sys.exit(1)
