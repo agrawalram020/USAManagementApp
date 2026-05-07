@@ -4,7 +4,7 @@
 <!-- ── Batch Management Section ─────────────────────────────────────── -->
 <div class="row g-4 mb-4">
 
-    {% if session['role'] == 'owner' %}
+    {% if session['role'] in ['owner', 'coach'] %}
     <!-- Create Batch Form -->
     <div class="col-md-4">
         <div class="card p-4 shadow-sm border-0">
@@ -39,7 +39,7 @@
     {% endif %}
 
     <!-- All Batches -->
-    <div class="col-md-{% if session['role'] == 'owner' %}8{% else %}12{% endif %}">
+    <div class="col-md-{% if session['role'] in ['owner', 'coach'] %}8{% else %}12{% endif %}">
         <div class="card shadow-sm border-0 h-100">
             <div class="p-3 bg-white border-bottom">
                 <span class="fw-bold">Batches
@@ -62,7 +62,7 @@
                                             ⏰ {{ b.start_time }} – {{ b.end_time }}
                                         </div>
                                     </div>
-                                    {% if session['role'] == 'owner' %}
+                                    {% if session['role'] in ['owner', 'coach'] %}
                                     <form action="/coaching/batch/delete/{{ b.id }}" method="POST" class="no-loader">
                                         <button class="btn btn-sm btn-outline-danger"
                                             onclick="return confirm('Delete this batch?')">✕</button>
@@ -234,7 +234,7 @@
                             <td>
                                 <button class="btn btn-sm btn-outline-secondary me-1"
                                     onclick='openEdit({{ s.id }}, {{ s.name|tojson }}, {{ (s.phone or "")|tojson }}, {{ (s.batch_timing or "")|tojson }}, {{ (s.package or "")|tojson }}, {{ (s.start_date.strftime("%Y-%m-%d") if s.start_date else "")|tojson }}, {{ (s.end_date.strftime("%Y-%m-%d") if s.end_date else "")|tojson }}, {{ (s.fees or 0)|tojson }}, {{ (s.notes or "")|tojson }})'>✏️</button>
-                                {% if session['role'] == 'owner' %}
+                                {% if session['role'] in ['owner', 'coach'] %}
                                 <form action="/coaching/delete/{{ s.id }}" method="POST" class="d-inline no-loader">
                                     <button class="btn btn-sm btn-outline-danger"
                                         onclick="return confirm('Delete {{ s.name }}?')">✕</button>
