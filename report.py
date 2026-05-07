@@ -1,6 +1,7 @@
 import os
 import sys
 import smtplib
+import socket
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -8,6 +9,12 @@ from collections import defaultdict
 
 REPORT_TO = 'ranvirkpoddar@gmail.com'
 IST = timezone(timedelta(hours=5, minutes=30))
+
+smtp_server = "smtp.gmail.com"
+smtp_port = 465
+
+# Force IPv4
+ipv4 = socket.gethostbyname(smtp_server)
 
 
 def get_india_today():
@@ -282,9 +289,11 @@ def send_daily_report(app, db, Transaction, MonthlyPass, CoachingStudent, Coachi
         msg['To'] = REPORT_TO
         msg.attach(MIMEText(html, 'html'))
 
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+        with smtplib.SMTP_SSL(ipv4, smtp_port, timeout=20) as server:
+            server.ehlo()
             server.login(email_user, email_pass)
             server.sendmail(email_user, REPORT_TO, msg.as_string())
+
 
         print(f'[report] Daily report for {report_date} sent to {REPORT_TO}')
     except Exception as e:
