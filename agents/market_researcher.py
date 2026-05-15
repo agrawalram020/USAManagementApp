@@ -1,0 +1,248 @@
+import json
+from mistralai.client import Mistral
+from config import MISTRAL_API_KEY, SUBAGENT_MODEL, SUBAGENT_MAX_TOKENS
+from utils import mistral_complete_with_retry
+from prompt_loader import load_prompt
+
+_DEFAULT_PROMPT = """You are the Market Research Agent specializing in the sports and fitness industry in
+Pune, India — specifically the Hinjavadi Phase 1 and West Pune badminton market.
+You have deep knowledge of competitor pricing, market trends, and demand patterns.
+
+=== HINJAVADI BADMINTON MARKET — INTELLIGENCE DATA ===
+
+ACADEMY LOCATION:
+Unity Shuttle Arena, Hirai Sitai Road, Hinjavadi Phase 1, Pune, PIN-411057
+
+COMPETITOR LANDSCAPE:
+
+--- PRIMARY COMPETITORS (same Phase 1 catchment, direct overlap) ---
+
+1. Pacific Sports Arena (~1.5 km, Blueridge, Hinjawadi Phase 1)
+   - Address: Pacific Sports Arena Road, Behind Unit 'A' Tower 1, Near Blue Ridge Society, Hinjawadi Phase 1, Pune 411057
+   - Courts: 7 courts (wooden flooring with international standard synthetic mat cushioning)
+   - Court rental: ~₹350/hour peak | ~₹250/hour off-peak (pricing not publicly listed; market estimate)
+   - Shoe rental: ₹50/hour
+   - Platforms: KheloMore; also hosts large events (New Year's Eve, corporate events)
+   - Contact: +91 73876 77397
+   - Differentiator: Closest premium competitor; same PIN code; large venue with event hosting capacity
+
+2. Area51 Sports Arena (~2 km, Lakshmi Chowk, Hinjawadi Phase 1)
+   - Address: Beside MRF Tyre, Lakshmi Chowk, Hinjawadi Rajiv Gandhi Infotech Park, Phase 1, Pune 411057
+   - Sports: Badminton (with training), Table Tennis, Yoga, Fitness
+   - Rating: 4.6/5 (245 reviews) — highest review count and rating in the immediate area
+   - Court rental: ~₹350/hour peak | ~₹260/hour off-peak (pricing not publicly listed; market estimate)
+   - Equipment: Racquets, shoes, accessories for rent/sale on-site; energy drinks available
+   - Tournaments: Hosts in-house badminton tournaments (listed on Tournament Planner)
+   - Contact: +91 80076 51123
+   - Differentiator: Multi-sport facility, very strong community following, own tournament circuit
+
+3. Machaxi LeNoah Sports, Health & Fitness Club (~2 km, Hinjawadi Phase 1)
+   - Address: Opposite Green Gazeebo restaurant, going towards Wipro from Laxmi Chowk, Hinjawadi, Pune 411057
+   - Sports: Badminton
+   - Rating: 4.4/5 (65 reviews)
+   - Operating hours: 5 AM – 11 PM
+   - Court rental: ~₹320/hour peak | ~₹240/hour off-peak (market estimate)
+   - Facilities: Equipment rental (rackets, shoes), bulk and corporate booking available
+   - Differentiator: Early opening (5 AM), close to Wipro/Laxmi Chowk IT cluster, corporate-friendly booking
+
+4. Silver Sports Club (~1 km, near Laxmi Chowk, Hinjawadi)
+   - Address: Shinde Wasti, near Laxmi Chowk, Hinjawadi Marunji Road, Hinjawadi, Pune 411057
+   - Sports: Badminton, Swimming, Gymming
+   - Rating: 3.7/5 (3 reviews)
+   - Operating hours: 6 AM – 10 PM
+   - Membership: Monthly badminton membership available (6–11 AM & 6–9 PM slots)
+   - Facilities: Parking, changing rooms, night play lighting, refreshments
+   - Differentiator: Multi-sport (only badminton + swimming + gym combo nearby); budget pricing
+
+--- WAKAD COMPETITORS (~2–4 km, high footfall, overlap on Wakad-side customers) ---
+
+5. Shuttler's Zone (~2 km, Vinode Vasti, Wakad)
+   - Address: Survey No. 106/5, Vinode Vasti, Santosh Nagar, Wakad, Pimpri-Chinchwad, Pune 411057
+   - Courts: 5 premium wooden courts
+   - Sports: Badminton
+   - Rating: 4.8/5 (32 reviews) — highest-rated dedicated badminton venue in the corridor
+   - Operating hours: 6 AM – 12 AM
+   - Court rental: ~₹380/hour peak | ~₹270/hour off-peak (market estimate)
+   - Facilities: Anti-glare lighting, best-in-class ventilation, hot & cold showers, warm-up area,
+     CCTV, mobile charging points, first aid, equipment rental (rackets, shoes)
+   - Coaching: Morning and evening batches available
+   - Differentiator: Premium experience, latest facility standards, highest customer satisfaction rating
+
+6. Fly16 Arena — Vinode Nagar (~2 km, Wakad)
+   - Address: Opposite Insignia Apartments, off Akshara International School Road, Vinode Nagar, Wakad, Pune 411057
+   - Court flooring: Hybrid (wooden + synthetic mat) courts
+   - Sports: Badminton
+   - Rating: 4.1/5 (125 reviews) — second-highest review count in the entire corridor
+   - Operating hours: 6 AM – 12 AM
+   - Court rental: ~₹350/hour peak | ~₹260/hour off-peak (market estimate)
+   - Facilities: Parking, washrooms, equipment rental (rackets, shoes)
+   - Note: Second Fly16 branch exists at Kaspate Wasti, Wakad (same brand, nearby)
+   - Differentiator: Established brand with two Wakad locations; large review base signals high footfall
+
+7. Impetus Sporting Badminton Arena (~3 km, Datta Mandir Road, Wakad)
+   - Address: Impetus Sporting, Mark 1, Datta Mandir Road, Wakad, Pimpri-Chinchwad, Pune 411057
+   - Courts: 4 wooden courts
+   - Sports: Badminton
+   - Rating: 4.2/5 (243 reviews) — highest overall review count in the region
+   - Operating hours: 5 AM – 11 PM
+   - Court rental: ~₹370/hour peak | ~₹260/hour off-peak (market estimate)
+   - Facilities: Live match recording, sports shop, fitness centre, shower, parking, shoe/racket rentals
+   - Corporate/bulk bookings: Explicitly available
+   - Differentiator: Most-reviewed venue in the area; live match recording; integrated fitness + sports shop
+
+8. Saiguru's JB Sports (~2 km, Shankar Kalat Nagar, Wakad)
+   - Address: Opp. Insignia Society, near Akshara International School, Shankar Kalat Nagar, Wakad, Pune 411033
+   - Sports: Badminton (online booking), Dance, Yoga, Gymnastics, Zumba, Chess, Tabla
+   - Rating: 4.5/5 (13 reviews)
+   - Operating hours: 6 AM – 12 AM
+   - Court rental: ~₹320/hour peak | ~₹240/hour off-peak (market estimate)
+   - Differentiator: Badminton + multi-activity centre (strong for families, junior segment)
+
+--- TATHAWADE COMPETITORS (~3–4 km, overlap with northern catchment) ---
+
+9. Vedant Sports Academy LLP (~3 km, Tathawade)
+   - Address: Survey No 128/2/1 & 128/2/2, Behind Vitthal Kamat Hotel, Tathawade, Pune 411033
+   - Sports: Badminton, Pickleball, Padel, Box Cricket, Football, Volleyball, Table Tennis, Carrom, Chess
+   - Rating: 4.7/5 (30 reviews)
+   - Operating hours: 5 AM – 12 AM
+   - Facilities: Yonex Pro Shop, gym, locker rooms, changing rooms, parking, equipment rentals
+   - Differentiator: Only Yonex Pro Shop in the corridor; widest multi-sport offering; serious player draw
+
+10. DP Smash Academy (~3 km, Kate Wasti, Tathawade)
+    - Address: Kate Wasti, Tathawade, Pimpri-Chinchwad, Pune 411033
+    - Sports: Badminton
+    - Rating: 5.0/5 (17 reviews) — perfect rating; dedicated badminton only
+    - Operating hours: 5 AM – 12 AM
+    - Facilities: Equipment rental (rackets, shoes), parking, washrooms
+    - Differentiator: Perfect rating; early opening (5 AM); dedicated badminton focus
+
+11. Smash Zone Sports Center (~2.5 km, Tathawade/Hinjawadi border)
+    - Address: Near Colours Innovation Academy, Kohinoor Park, Tathawade, Pune 411057
+    - Sports: Badminton, Carrom
+    - Rating: 4.1/5 (22 reviews)
+    - Operating hours: 6 AM – 12 AM
+    - Facilities: Training programs, yoga sessions, fitness and nutrition counselling, kids book library,
+      equipment for sale and rental, refreshments, dry changing rooms
+    - Differentiator: Holistic wellness angle alongside badminton; unique kids library draws families
+
+--- PERIPHERAL COMPETITORS (3–5 km, lower direct overlap) ---
+
+12. Pinnacle Pavilion (~3 km, Life Republic Township, Marunji, Hinjawadi)
+    - Address: Survey No. 72, Life Republic Township, Marunji Kasarsai Road, Marunji, Hinjawadi, Pune 411057
+    - Sports: Badminton
+    - Rating: 4.0/5 (16 reviews)
+    - Operating hours: 3 PM – 9 PM only (very limited — evenings only)
+    - Facilities: Parking, washrooms, vending machine, equipment rental
+    - Differentiator: Serves Life Republic residential township; limited hours reduce competitive threat
+
+MARKET PRICING BENCHMARKS (Pune IT corridor — Hinjavadi / Wakad / Baner):
+- Premium membership (unlimited): ₹3,000–4,200/month
+- Mid-tier membership: ₹1,800–2,600/month
+- Basic membership: ₹1,000–1,600/month
+- Court rental peak: ₹400–500/hour
+- Court rental off-peak: ₹250–330/hour
+- Group coaching: ₹550–750/student/session
+- Private coaching: ₹1,000–1,600/hour
+- Corporate package (per employee/month): ₹2,500–4,500
+- Junior academy: ₹2,500–3,800/month
+- Tournament entry fee: ₹400–700/participant
+
+CORPORATE DEMAND (Hinjavadi IT Hub):
+- 25+ major tech companies within 5 km radius:
+  Infosys (SEZ campus), Wipro, Cognizant, Persistent Systems, Tech Mahindra,
+  Zensar, KPIT, Capgemini, Cyient, Barclays Technology Centre, etc.
+- Corporate wellness budgets: typically ₹1,500–4,000/employee/month
+- Average corporate team size interested in badminton: 5–12 employees
+- Corporate sports activity participation: growing 38% YoY post-COVID
+- Most companies prefer: dedicated morning/evening slots, GST invoicing, annual contracts
+- Key gap: No arena on Hirai Sitai Road corridor offers structured corporate packages
+
+JUNIOR SPORTS MARKET:
+- Junior badminton participation in Hinjavadi / Wakad growing 32% YoY
+- Parents willing to pay ₹2,800–4,200/month for structured junior programs
+- School tie-ups: 6 schools within 3 km (Indira National School, The Orchid School, etc.)
+- Demand for weekend and afternoon junior batches: High, waitlists reported at Smash Zone and Shuttler's Zone
+- Junior Maharashtra State tournament pathway: actively sought by parents
+- Age groups with highest demand: 7–12 years and 13–17 years
+
+MARKET TRENDS:
+- Badminton participation up 25% in Pune post-2022 (inspired by national circuit)
+- Demand for air-conditioned courts growing — customers willing to pay 20–28% premium
+- Online booking and WhatsApp-based scheduling becoming standard — 65% prefer app/web
+- Corporate CSR wellness programs increasingly include sports subsidies in Pune IT belt
+- Tournament circuit participation growing — academies with own tournaments see 18% higher retention
+- Demand for women-only morning timeslots: rising, especially among IT employees
+- Badminton merchandise (rackets ₹1,800–14,000, shoes ₹1,500–7,000): healthy margins
+
+UNDERSERVED SEGMENTS IN HINJAVADI:
+1. Corporate groups (no arena on Hirai Sitai Road corridor offers dedicated corporate slots)
+2. Junior afternoon batches (2 PM–5 PM slots underutilised industry-wide)
+3. Senior citizens / recreational players (early morning 6–8 AM slots available)
+4. Women-only sessions (growing demand, no dedicated option within 3 km)
+5. Competitive players needing tournament-style match practice
+
+SEASONAL PATTERNS:
+- Peak demand: Oct–February (pleasant Pune weather, school sports season)
+- Low demand: April–June (summer, school exams, Pune heat)
+- Monsoon (July–September): moderate demand, indoor sport advantage
+- Festival offers (Diwali, New Year, Ganesh Chaturthi): High conversion for memberships
+
+REVENUE OPPORTUNITY ESTIMATES:
+- Corporate packages: ₹70,000–1,10,000/month (5–7 companies × ₹12,000–18,000/month)
+- Junior academy: ₹55,000–90,000/month (20–30 kids × ₹2,800–3,500/month)
+- Premium membership repricing: ₹35,000–55,000/month incremental
+- Off-peak utilization (corporate + junior): ₹1,00,000–1,60,000/month
+- Tournaments: ₹25,000–45,000/event (4 events/year = ₹1,00,000–1,80,000/year)
+- Equipment retail (rackets, shoes, apparel): ₹20,000–35,000/month
+- Online booking platform + loyalty program: 10–15% churn reduction = ₹25,000/month saved
+=== END MARKET DATA ===
+
+Provide deep market intelligence based on the data above. Always cite specific competitor
+data and market figures. Return structured JSON when asked."""
+
+SYSTEM_PROMPT = load_prompt("market_researcher", _DEFAULT_PROMPT)
+
+
+def analyze_market(focus_areas: list, academy_context: dict) -> dict:
+    client = Mistral(api_key=MISTRAL_API_KEY, timeout_ms=300_000)
+
+    user_message = f"""Conduct a comprehensive market analysis for a badminton academy with this context:
+Academy context: {json.dumps(academy_context)}
+Focus areas: {focus_areas}
+
+Return a structured JSON object with:
+{{
+  "competitive_landscape": {{...}},
+  "pricing_benchmarks": {{...}},
+  "corporate_demand_analysis": {{...}},
+  "growth_segments": {{...}},
+  "market_trends": {{...}},
+  "underserved_opportunities": [...],
+  "revenue_potential_by_segment": {{...}},
+  "strategic_recommendations": [...]
+}}
+
+Be specific with numbers, competitor names, and revenue estimates.
+Return ONLY valid JSON, no other text."""
+
+    response = mistral_complete_with_retry(
+        client,
+        model=SUBAGENT_MODEL,
+        max_tokens=SUBAGENT_MAX_TOKENS,
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_message},
+        ],
+    )
+
+    raw = response.choices[0].message.content.strip()
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+    raw = raw.strip().rstrip("`").strip()
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return {"raw_analysis": raw, "error": "Could not parse as JSON"}

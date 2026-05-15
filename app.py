@@ -10,8 +10,10 @@ import json
 from pathlib import Path
 from kmo import KMO
 from playoo import PlayoO
+from agent_routes import agent_bp
 
 app = Flask(__name__)
+app.register_blueprint(agent_bp)
 app.secret_key = 'unity_arena_ultra_v18_premium'
 
 # --- India Timezone Helper ---

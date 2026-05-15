@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>USA Revenue Agent</title>
+  <style>
+    :root {
+      --brand: #1a6b3c; --brand-dark: #0f4c2a; --brand-light: #e8f5ee;
+      --accent: #f59e0b; --accent-light: #fef3c7;
+      --danger: #dc2626; --text: #1f2937; --muted: #6b7280;
+      --border: #e5e7eb; --bg: #f3f4f6; --white: #fff;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* NAV */
+    .topnav {
+      background: var(--brand-dark);
+      display: flex; align-items: center; gap: 0;
+      padding: 0 24px; height: 56px; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .topnav .logo {
+      font-size: 15px; font-weight: 700; color: white; margin-right: 32px;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap; cursor: pointer;
+    }
+    .topnav .logo span { font-size: 20px; }
+    .topnav a {
+      color: rgba(255,255,255,0.72); text-decoration: none;
+      padding: 0 16px; height: 56px; display: flex; align-items: center;
+      font-size: 14px; font-weight: 500; transition: all 0.15s; white-space: nowrap; cursor: pointer;
+    }
+    .topnav a:hover { color: white; background: rgba(255,255,255,0.08); }
+    .topnav a.active { color: white; border-bottom: 3px solid #4ade80; }
+    .topnav .spacer { flex: 1; }
+    .topnav .badge {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8); font-size: 11px; padding: 3px 10px;
+      border-radius: 20px; white-space: nowrap;
+    }
+
+    /* LAYOUT */
+    .page { flex: 1; padding: 28px 32px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+    /* VIEW SWITCHING */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* CARDS */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); }
+    .card-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; }
+    .btn-primary { background: var(--brand); color: white; }
+    .btn-primary:hover { background: var(--brand-dark); }
+    .btn-secondary { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--bg); }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover { background: #d97706; }
+    .btn-sm { padding: 5px 12px; font-size: 13px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* FORM ELEMENTS */
+    input[type=text], textarea, select {
+      width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 14px; font-family: inherit;
+      background: var(--white); color: var(--text); outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type=text]:focus, textarea:focus, select:focus { border-color: var(--brand); }
+    textarea { resize: vertical; line-height: 1.6; }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1f2937; color: white; padding: 10px 18px;
+      border-radius: 8px; font-size: 14px; z-index: 9999;
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s; pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { background: var(--brand); }
+    #toast.error { background: var(--danger); }
+
+    /* SPINNER */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner.dark { border-color: rgba(0,0,0,0.15); border-top-color: var(--brand); }
+
+    /* UTILITIES */
+    .text-muted { color: var(--muted); }
+    .text-sm { font-size: 13px; }
+    .text-xs { font-size: 11px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .flex { display: flex; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .section-header h2 { font-size: 20px; font-weight: 700; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .tag-green { background: var(--brand-light); color: var(--brand); }
+    .tag-amber { background: var(--accent-light); color: #92400e; }
+    .tag-red { background: #fee2e2; color: #991b1b; }
+
+    /* ── DASHBOARD ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .kpi-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+    .kpi-card .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .kpi-card .value { font-size: 26px; font-weight: 700; color: var(--brand); line-height: 1.1; }
+    .kpi-card .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .kpi-card.highlight { background: var(--brand); border-color: var(--brand); }
+    .kpi-card.highlight .label, .kpi-card.highlight .sub { color: rgba(255,255,255,0.7); }
+    .kpi-card.highlight .value { color: white; }
+    .kpi-card.amber { background: var(--accent-light); border-color: #fcd34d; }
+    .kpi-card.amber .value { color: #92400e; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+    .obs-list { list-style: none; }
+    .obs-list li { display: flex; gap: 10px; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .obs-list li:last-child { border-bottom: none; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); flex-shrink: 0; margin-top: 5px; }
+    .dot.red { background: var(--danger); }
+    .dot.amber { background: var(--accent); }
+    .gap-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .gap-row:last-child { border-bottom: none; }
+    .gap-row .name { font-weight: 600; }
+    .gap-row .amount { font-weight: 700; color: var(--danger); white-space: nowrap; }
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+    .status-pill.running { background: #dbeafe; color: #1d4ed8; }
+    .status-pill.idle { background: var(--brand-light); color: var(--brand); }
+    .status-pill.dot-anim::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 1.2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .actions-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 28px; padding: 16px 20px; background: var(--white); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+    .period-selector { display: flex; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+    .period-btn { padding: 5px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.15s; }
+    .period-btn:hover { color: var(--brand); }
+    .period-btn.active { background: var(--white); color: var(--brand); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .period-label { font-size: 12px; color: var(--muted); }
+    .progress-wrap { margin-bottom: 20px; display: none; }
+    .progress-wrap.visible { display: block; }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px; }
+    .progress-stage { font-weight: 600; color: var(--brand); }
+    .progress-pct { color: var(--muted); }
+    .progress-track { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--brand), #4ade80); border-radius: 99px; transition: width 1s ease; width: 0%; }
+    .progress-steps { display: flex; gap: 0; margin-top: 10px; }
+    .progress-step { flex: 1; text-align: center; font-size: 11px; color: var(--muted); padding: 4px 2px; border-top: 2px solid var(--border); transition: all 0.3s; }
+    .progress-step.done { color: var(--brand); border-color: var(--brand); font-weight: 600; }
+    .progress-step.active { color: var(--brand-dark); border-color: #4ade80; font-weight: 700; }
+
+    /* ── CHAT ── */
+    #view-chat .page-inner { display: flex; flex-direction: column; height: calc(100vh - 56px - 56px); }
+    .chat-window {
+      flex: 1; overflow-y: auto; padding: 16px;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px 12px 0 0; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 12px;
+      min-height: 0;
+    }
+    .chat-input-bar {
+      display: flex; gap: 10px; padding: 12px 16px;
+      background: var(--white); border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 12px 12px;
+      box-shadow: var(--shadow);
+    }
+    .chat-input-bar input { flex: 1; }
+    .msg { display: flex; flex-direction: column; max-width: 75%; }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.bot { align-self: flex-start; align-items: flex-start; }
+    .bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    .msg.user .bubble { background: var(--brand); color: white; border-bottom-right-radius: 4px; }
+    .msg.bot .bubble { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+    .msg-meta { font-size: 11px; color: var(--muted); margin-top: 3px; padding: 0 4px; }
+    .typing-bubble { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px 16px; display: inline-flex; gap: 4px; align-items: center; }
+    .typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bounce 1.2s infinite; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 8px; }
+    .empty-state .icon { font-size: 40px; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .suggestion { background: var(--brand-light); color: var(--brand); border: 1px solid #a7f3d0; border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+    .suggestion:hover { background: var(--brand); color: white; }
+
+    /* ── PROMPTS ── */
+    .agent-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--muted); transition: all 0.15s; }
+    .tab-btn:hover { border-color: var(--brand); color: var(--brand); }
+    .tab-btn.active { background: var(--brand); border-color: var(--brand); color: white; }
+    .editor-area { display: none; }
+    .editor-area.visible { display: block; }
+    .prompt-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .prompt-meta h3 { font-size: 16px; font-weight: 600; }
+    .char-count { font-size: 12px; color: var(--muted); }
+    .prompt-textarea { font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; min-height: 420px; }
+    .agent-desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; padding: 10px 14px; background: var(--bg); border-radius: 8px; border-left: 3px solid var(--brand); }
+    .save-bar { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+    .reset-hint { font-size: 12px; color: var(--muted); }
+
+    /* ── REPORT ── */
+    .report-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .report-iframe { width: 100%; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); background: white; }
+    .no-report { text-align: center; padding: 64px; }
+    .no-report .icon { font-size: 48px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="logo" onclick="navigate('dashboard')"><span>🏸</span> USA Revenue Agent</div>
+  <a id="nav-dashboard" class="active" onclick="navigate('dashboard')">Dashboard</a>
+  <a id="nav-chat" onclick="navigate('chat')">Chat</a>
+  <a id="nav-prompts" onclick="navigate('prompts')">Prompts</a>
+  <a id="nav-report" onclick="navigate('report')">Report</a>
+  <div class="spacer"></div>
+  <div class="badge">Unity Shuttle Arena · Hinjawadi</div>
+</nav>
+
+<div class="page">
+
+  <!-- ══════════════════ DASHBOARD VIEW ══════════════════ -->
+  <div id="view-dashboard" class="view active">
+    <div class="section-header">
+      <div>
+        <h2>Dashboard</h2>
+        <p class="text-muted text-sm" style="margin-top:4px" id="dash-last-run">Loading…</p>
+      </div>
+      <span id="status-pill" class="status-pill idle">● Ready</span>
+    </div>
+
+    <div class="actions-bar">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span class="period-label">Data period</span>
+        <div class="period-selector">
+          <button class="period-btn active" data-period="1y" onclick="setPeriod('1y',this)">1 Year</button>
+          <button class="period-btn" data-period="6m" onclick="setPeriod('6m',this)">6 Months</button>
+          <button class="period-btn" data-period="1m" onclick="setPeriod('1m',this)">1 Month</button>
+        </div>
+      </div>
+      <div style="width:1px;height:36px;background:var(--border);margin:0 4px"></div>
+      <button class="btn btn-primary" id="run-btn" onclick="runAnalysis()">▶ Run Analysis</button>
+      <button class="btn btn-secondary" onclick="navigate('report')">📄 View Report</button>
+      <button class="btn btn-secondary" onclick="genReport()">⚙ Regenerate Report</button>
+      <button class="btn btn-secondary" onclick="navigate('chat')">💬 Ask Chatbot</button>
+      <button class="btn btn-secondary" onclick="navigate('prompts')">✏ Edit Prompts</button>
+      <span id="run-msg" class="text-sm text-muted" style="margin-left:8px"></span>
+    </div>
+
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-header">
+        <span class="progress-stage" id="progress-stage">Initialising…</span>
+        <span class="progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-steps">
+        <div class="progress-step" id="step-0">Collecting Data</div>
+        <div class="progress-step" id="step-1">Market Research</div>
+        <div class="progress-step" id="step-2">Gap Analysis</div>
+        <div class="progress-step" id="step-3">Strategy Planning</div>
+      </div>
+    </div>
+
+    <div id="kpi-section"></div>
+  </div>
+
+  <!-- ══════════════════ CHAT VIEW ══════════════════ -->
+  <div id="view-chat" class="view">
+    <div class="page-inner">
+      <div class="section-header" style="margin-bottom:12px">
+        <div>
+          <h2>Ask the Chatbot</h2>
+          <p class="text-muted text-sm" style="margin-top:4px">Ask anything about the revenue analysis, gaps, strategy, or competitors.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="clearChat()">Clear chat</button>
+      </div>
+
+      <div class="suggestions" id="suggestions">
+        <span class="suggestion" onclick="ask(this)">What is our biggest revenue gap?</span>
+        <span class="suggestion" onclick="ask(this)">Which quick wins should we do first?</span>
+        <span class="suggestion" onclick="ask(this)">How do our court prices compare to competitors?</span>
+        <span class="suggestion" onclick="ask(this)">What is the 12-month revenue projection?</span>
+        <span class="suggestion" onclick="ask(this)">Which IT companies should we target for corporate packages?</span>
+      </div>
+
+      <div class="chat-window" id="chat-window">
+        <div class="empty-state" id="empty-state">
+          <div class="icon">💬</div>
+          <div style="font-weight:600">Start a conversation</div>
+          <div class="text-sm">Ask about revenue gaps, strategy, competitors, or anything from the analysis.</div>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <input type="text" id="msg-input" placeholder="Ask anything about the analysis…"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"/>
+        <button class="btn btn-primary" id="send-btn" onclick="sendMsg()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ PROMPTS VIEW ══════════════════ -->
+  <div id="view-prompts" class="view">
+    <div class="section-header">
+      <div>
+        <h2>Agent Prompts</h2>
+        <p class="text-muted text-sm" style="margin-top:4px">Edit the system prompt for each agent. Changes take effect on the next analysis run.</p>
+      </div>
+    </div>
+    <div class="agent-tabs" id="agent-tabs"></div>
+    <div id="agent-editors"></div>
+  </div>
+
+  <!-- ══════════════════ REPORT VIEW ══════════════════ -->
+  <div id="view-report" class="view">
+    <div class="section-header">
+      <div>
+        <h2>Revenue Strategy Report</h2>
+        <p class="text-muted text-sm" style="margin-top:4px" id="report-subtitle">Loading…</p>
+      </div>
+    </div>
+    <div id="report-content"></div>
+  </div>
+
+</div><!-- /.page -->
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// Global state — loaded once from /api/state, refreshed only during polling
+// ═══════════════════════════════════════════════════════════════════════════
+const BASE = "{{ root_path }}";  // e.g. "" locally, "/usa-agent" in production
+let appState = null;
+let dashPolling = null;
+let progressTimer = null;
+let analysisStartTime = null;
+let selectedPeriod = '1y';
+let promptsBuilt = false;
+
+async function fetchState() {
+  const res = await fetch(BASE + '/api/state');
+  appState = await res.json();
+  return appState;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 2800);
+}
+
+// ── Router ────────────────────────────────────────────────────────────────
+const VIEWS = ['dashboard', 'chat', 'prompts', 'report'];
+
+function navigate(view) {
+  if (!VIEWS.includes(view)) view = 'dashboard';
+  VIEWS.forEach(v => {
+    document.getElementById('view-' + v).classList.toggle('active', v === view);
+    document.getElementById('nav-' + v).classList.toggle('active', v === view);
+  });
+  history.replaceState(null, '', '#' + view);
+  if (view === 'dashboard') renderDashboard(appState.kpis);
+  if (view === 'prompts')   renderPrompts();
+  if (view === 'report')    renderReport();
+}
+
+function routeFromHash() {
+  const hash = location.hash.replace('#', '');
+  const pathMap = { chat: 'chat', prompts: 'prompts', report: 'report' };
+  const pathSeg = location.pathname.split('/').pop();
+  navigate(pathMap[pathSeg] || pathMap[hash] || hash || 'dashboard');
+}
+
+window.addEventListener('hashchange', routeFromHash);
+window.addEventListener('load', async () => {
+  await fetchState();
+  if (appState.kpis.running && !dashPolling) {
+    setRunningState();
+    dashPolling = setInterval(checkStatus, 8000);
+  }
+  routeFromHash();
+});
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
+function setPeriod(period, el) {
+  selectedPeriod = period;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderDashboard(kpis) {
+  if (!kpis) return;
+  const lastRun = document.getElementById('dash-last-run');
+  lastRun.textContent = kpis.generated_at
+    ? 'Last analysis: ' + kpis.generated_at.slice(0, 19).replace('T', ' ')
+    : 'No analysis run yet';
+
+  const sec = document.getElementById('kpi-section');
+  if (!kpis.has_data) {
+    sec.innerHTML = `
+      <div class="card" style="text-align:center;padding:48px">
+        <div style="font-size:48px;margin-bottom:16px">🏸</div>
+        <h3 style="margin-bottom:8px">No analysis data yet</h3>
+        <p class="text-muted text-sm" style="margin-bottom:20px">Run the analysis pipeline to see revenue insights, gaps, and strategy.</p>
+        <button class="btn btn-primary" onclick="runAnalysis()">▶ Run Analysis Now</button>
+      </div>`;
+    return;
+  }
+
+  const dotClass = obs => {
+    const l = obs.toLowerCase();
+    if (l.includes('negative') || l.includes('low') || l.includes('only')) return 'red';
+    if (l.includes('high') || l.includes('exceeds')) return 'amber';
+    return '';
+  };
+
+  const obsItems = (kpis.observations || []).map(obs =>
+    `<li><span class="dot ${dotClass(obs)}"></span><span>${esc(obs)}</span></li>`
+  ).join('');
+
+  const gapRows = (kpis.top_gaps || []).map(g =>
+    `<div class="gap-row">
+      <div>
+        <div class="name">${esc(g.name)}</div>
+        <div class="text-xs text-muted">${esc(g.category)} · ${esc((g.type||'').replace(/_/g,' '))}</div>
+      </div>
+      <div class="amount">₹${fmt(g.gap_amount_inr_low)}–${fmt(g.gap_amount_inr_high)}/mo</div>
+    </div>`
+  ).join('');
+
+  sec.innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi-card highlight">
+        <div class="label">Monthly Run Rate</div>
+        <div class="value">${esc(kpis.monthly_revenue)}</div>
+        <div class="sub">${esc(kpis.total_revenue)} total in DB</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Court Booking Revenue</div>
+        <div class="value">${esc(kpis.bookings_revenue)}</div>
+        <div class="sub">${kpis.bookings_pct}% of monthly</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Active Monthly Passes</div>
+        <div class="value">${kpis.active_passes}</div>
+        <div class="sub">vs. 50–80 capacity</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="label">Revenue Gap Potential</div>
+        <div class="value">${esc(kpis.gap_potential)}/mo</div>
+        <div class="sub">${kpis.gaps_count} gaps identified</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">12-Month Target</div>
+        <div class="value">${esc(kpis.m12_revenue)}/mo</div>
+        <div class="sub">${kpis.roi}% blended ROI</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Investment Required</div>
+        <div class="value">${esc(kpis.investment)}</div>
+        <div class="sub">Phased over 12 months</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Key Observations</div>
+        <ul class="obs-list">${obsItems}</ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Top Revenue Gaps</div>
+        ${gapRows}
+        <div class="mt-4">
+          <button class="btn btn-primary btn-sm" onclick="navigate('report')">Full Report →</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function fmt(val) {
+  const n = parseFloat(val);
+  if (isNaN(n)) return '0';
+  return n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+// ── Progress bar ───────────────────────────────────────────────────────────
+const STAGES = [
+  { label: 'Collecting academy data…', pct: 0  },
+  { label: 'Researching market…',      pct: 25 },
+  { label: 'Identifying revenue gaps…',pct: 50 },
+  { label: 'Planning strategy…',       pct: 75 },
+];
+const ESTIMATED_MS = 8 * 60 * 1000;
+
+function showProgress() {
+  analysisStartTime = Date.now();
+  document.getElementById('progress-wrap').classList.add('visible');
+  setProgressPct(2);
+  progressTimer = setInterval(() => {
+    const raw = (Date.now() - analysisStartTime) / ESTIMATED_MS;
+    setProgressPct(Math.min(95, Math.round(100 * (1 - Math.exp(-2.5 * raw)))));
+  }, 2000);
+}
+
+function setProgressPct(pct) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  let si = 0;
+  for (let i = STAGES.length - 1; i >= 0; i--) { if (pct >= STAGES[i].pct) { si = i; break; } }
+  document.getElementById('progress-stage').textContent = STAGES[si].label;
+  STAGES.forEach((_, i) => {
+    document.getElementById('step-' + i).className =
+      'progress-step' + (i < si ? ' done' : i === si ? ' active' : '');
+  });
+}
+
+function completeProgress() {
+  clearInterval(progressTimer); progressTimer = null;
+  setProgressPct(100);
+  document.getElementById('progress-stage').textContent = 'Analysis complete!';
+  STAGES.forEach((_, i) => document.getElementById('step-' + i).className = 'progress-step done');
+  setTimeout(() => {
+    document.getElementById('progress-wrap').classList.remove('visible');
+    document.getElementById('progress-bar').style.width = '0%';
+  }, 1800);
+}
+
+// ── Run / poll ─────────────────────────────────────────────────────────────
+function setRunningState(label) {
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('run-btn').innerHTML = '<span class="spinner"></span> Running…';
+  document.getElementById('status-pill').className = 'status-pill running dot-anim';
+  document.getElementById('status-pill').textContent = ' Running…';
+  if (label) document.getElementById('run-msg').textContent = `Running (${label}) — this takes ~5–10 min…`;
+  if (!progressTimer) showProgress();
+}
+
+async function runAnalysis() {
+  const res = await fetch(BASE + '/run-analysis', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ period: selectedPeriod })
+  });
+  const data = await res.json();
+  if (data.status === 'already_running') { toast('Analysis already running…', 'success'); return; }
+  setRunningState(data.period_label || 'Last 12 Months');
+  dashPolling = setInterval(checkStatus, 8000);
+}
+
+async function checkStatus() {
+  try {
+    await fetchState();
+    if (!appState.kpis.running) {
+      clearInterval(dashPolling); dashPolling = null;
+      completeProgress();
+      document.getElementById('run-btn').disabled = false;
+      document.getElementById('run-btn').innerHTML = '▶ Run Analysis';
+      document.getElementById('run-msg').textContent = '';
+      document.getElementById('status-pill').className = 'status-pill idle';
+      document.getElementById('status-pill').textContent = '● Ready';
+      toast('Analysis complete! Refreshing…', 'success');
+      setTimeout(() => renderDashboard(appState.kpis), 1800);
+    }
+  } catch (e) { /* network blip — retry next tick */ }
+}
+
+async function genReport() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner dark"></span> Generating…';
+  const res = await fetch(BASE + '/generate-report', { method: 'POST' });
+  const data = await res.json();
+  btn.disabled = false;
+  btn.innerHTML = '⚙ Regenerate Report';
+  if (data.status === 'ok') {
+    toast('Report regenerated!', 'success');
+    await fetchState();
+    renderReport();
+  } else {
+    toast(data.detail || 'Error generating report', 'error');
+  }
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────
+const chatHistory = [];
+
+function nowTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function appendMsg(role, text) {
+  const win = document.getElementById('chat-window');
+  document.getElementById('empty-state')?.remove();
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="bubble">${esc(text)}</div><div class="msg-meta">${nowTime()}</div>`;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+}
+
+function showTyping() {
+  const win = document.getElementById('chat-window');
+  document.getElementById('empty-state')?.remove();
+  const div = document.createElement('div');
+  div.className = 'msg bot'; div.id = 'typing';
+  div.innerHTML = `<div class="typing-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+  win.appendChild(div); win.scrollTop = win.scrollHeight;
+}
+
+function removeTyping() { document.getElementById('typing')?.remove(); }
+
+async function sendMsg() {
+  const input = document.getElementById('msg-input');
+  const btn = document.getElementById('send-btn');
+  const text = input.value.trim();
+  if (!text) return;
+  document.getElementById('suggestions').style.display = 'none';
+  input.value = ''; btn.disabled = true;
+  appendMsg('user', text); showTyping();
+  try {
+    const res = await fetch(BASE + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history: chatHistory.slice(-10) })
+    });
+    const data = await res.json();
+    removeTyping();
+    if (res.ok) {
+      chatHistory.push({ role: 'user', content: text });
+      chatHistory.push({ role: 'assistant', content: data.reply });
+      appendMsg('bot', data.reply);
+    } else {
+      appendMsg('bot', '⚠ Error: ' + (data.detail || 'Something went wrong.'));
+    }
+  } catch (e) {
+    removeTyping();
+    appendMsg('bot', '⚠ Could not reach the server. Is the API running?');
+  }
+  btn.disabled = false; input.focus();
+}
+
+function ask(el) { document.getElementById('msg-input').value = el.textContent; sendMsg(); }
+
+function clearChat() {
+  chatHistory.length = 0;
+  document.getElementById('chat-window').innerHTML = `<div class="empty-state" id="empty-state">
+    <div class="icon">💬</div>
+    <div style="font-weight:600">Start a conversation</div>
+    <div class="text-sm">Ask about revenue gaps, strategy, competitors, or anything from the analysis.</div>
+  </div>`;
+  document.getElementById('suggestions').style.display = 'flex';
+}
+
+// ── Prompts ───────────────────────────────────────────────────────────────
+const AGENT_DESCS = {
+  orchestrator: 'Controls the overall analysis workflow — coordinates all 4 subagents and writes the final executive report.',
+  data_collector: 'Interprets raw PostgreSQL data from the academy DB and structures it into analytical JSON.',
+  market_researcher: 'Provides market intelligence — competitor pricing, corporate demand, and growth opportunities.',
+  revenue_analyzer: 'Cross-references academy vs market data to identify and quantify specific revenue gaps.',
+  strategy_planner: 'Converts gap analysis into a prioritized 12-month implementation roadmap with ROI projections.'
+};
+
+function renderPrompts() {
+  if (promptsBuilt) return;
+  promptsBuilt = true;
+  const agents = appState.agents;
+  const tabsEl = document.getElementById('agent-tabs');
+  const editorsEl = document.getElementById('agent-editors');
+
+  agents.forEach((agent, i) => {
+    const label = agent.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => switchPromptTab(agent, btn);
+    tabsEl.appendChild(btn);
+
+    const area = document.createElement('div');
+    area.className = 'editor-area' + (i === 0 ? ' visible' : '');
+    area.id = 'editor-' + agent;
+    area.innerHTML = `
+      <div class="card">
+        <div class="agent-desc">${AGENT_DESCS[agent] || 'Agent system prompt.'}</div>
+        <div class="prompt-meta">
+          <h3>${label} Prompt</h3>
+          <span class="char-count" id="chars-${agent}">—</span>
+        </div>
+        <textarea class="prompt-textarea" id="ta-${agent}" oninput="updateCharCount('${agent}')"></textarea>
+        <div class="save-bar">
+          <button class="btn btn-primary" onclick="savePrompt('${agent}')">Save Changes</button>
+          <button class="btn btn-secondary" onclick="resetPrompt('${agent}')">↺ Reset</button>
+          <span class="reset-hint">Changes apply on next analysis run.</span>
+        </div>
+      </div>`;
+    editorsEl.appendChild(area);
+    fillPrompt(agent, appState.prompts[agent] || '');
+  });
+}
+
+function fillPrompt(agent, content) {
+  const ta = document.getElementById('ta-' + agent);
+  if (ta) { ta.value = content; updateCharCount(agent); }
+}
+
+function updateCharCount(agent) {
+  const ta = document.getElementById('ta-' + agent);
+  document.getElementById('chars-' + agent).textContent = ta.value.length + ' chars';
+}
+
+async function resetPrompt(agent) {
+  await fetchState();
+  fillPrompt(agent, appState.prompts[agent] || '');
+  toast('Prompt reset to saved version', 'success');
+}
+
+async function savePrompt(agent) {
+  const ta = document.getElementById('ta-' + agent);
+  const content = ta.value.trim();
+  if (!content) { toast('Prompt cannot be empty', 'error'); return; }
+  const btn = event.target;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…';
+  try {
+    const res = await fetch(BASE + '/prompts/' + agent, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      appState.prompts[agent] = content;
+      toast('Prompt saved for ' + agent.replace(/_/g, ' '), 'success');
+    } else {
+      toast(data.detail || 'Save failed', 'error');
+    }
+  } catch (e) { toast('Network error', 'error'); }
+  btn.disabled = false; btn.innerHTML = 'Save Changes';
+}
+
+function switchPromptTab(agent, el) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.editor-area').forEach(e => e.classList.remove('visible'));
+  el.classList.add('active');
+  document.getElementById('editor-' + agent).classList.add('visible');
+}
+
+// ── Report ────────────────────────────────────────────────────────────────
+function renderReport() {
+  const subtitle = document.getElementById('report-subtitle');
+  const content = document.getElementById('report-content');
+  if (appState.has_report) {
+    subtitle.textContent = 'Generated from latest analysis data.';
+    content.innerHTML = `
+      <div class="report-toolbar">
+        <button class="btn btn-primary" onclick="genReport()">⚙ Regenerate Report</button>
+        <a class="btn btn-secondary" href="${BASE}/report-download" target="_blank">⬇ Download HTML</a>
+      </div>
+      <iframe class="report-iframe" src="${BASE}/report-raw?t=${Date.now()}" style="height:calc(100vh - 200px);" frameborder="0"></iframe>`;
+  } else {
+    subtitle.textContent = 'No report generated yet.';
+    content.innerHTML = `
+      <div class="no-report card">
+        <div class="icon">📄</div>
+        <h3 style="margin-bottom:8px">No report generated yet</h3>
+        <p class="text-muted text-sm" style="margin-bottom:20px">Run the analysis pipeline first, then generate the report.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="navigate('dashboard')">▶ Go to Dashboard</button>
+          <button class="btn btn-secondary" onclick="genReport()">⚙ Generate from Existing Data</button>
+        </div>
+      </div>`;
+  }
+}
+
+// ── Shared utils ──────────────────────────────────────────────────────────
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    .replace(/\n/g, '<br>');
+}
+</script>
+</body>
+</html>

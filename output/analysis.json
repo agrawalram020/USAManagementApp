@@ -1,0 +1,3801 @@
+{
+  "collect_academy_data": {
+    "academy_profile": {
+      "data_freshness": "2025-12-25 to 2026-04-30",
+      "data_completeness": "High completeness for transactions, expenses, and external profits. Coaching data is sparse (only 1 student). Monthly passes and booking conflicts tables are complete but small in volume.",
+      "platforms_used": [
+        "Playo",
+        "Khelomore",
+        "Internal Booking System"
+      ]
+    },
+    "revenue_breakdown": {
+      "total_revenue_in_db": 1861061,
+      "by_category": {
+        "bookings": 153734,
+        "product_sales": 67170,
+        "rentals": 68280,
+        "monthly_passes": 74700,
+        "external": 789127,
+        "coaching": 3500
+      },
+      "avg_booking_value": 646.0,
+      "avg_daily_revenue": 13482.4
+    },
+    "utilization_metrics": {
+      "total_bookings": 238,
+      "courts_in_use": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "peak_hours": [
+        21,
+        22,
+        23,
+        18
+      ],
+      "low_utilization_slots": [
+        0,
+        1,
+        2,
+        6,
+        7,
+        8,
+        10,
+        11,
+        12,
+        13,
+        15
+      ],
+      "booking_conflicts_count": 0,
+      "conflict_resolution_rate_pct": 0
+    },
+    "membership_analysis": {
+      "active_monthly_passes": 14,
+      "monthly_pass_revenue": 74700,
+      "pass_utilization": "High concentration (9/14 passes for 'kritika coach'). Most passes are for Court 1 (10/14). Peak slots: 5-6 PM, 6-7 PM, and 7-8 AM."
+    },
+    "product_analysis": {
+      "total_products": 12,
+      "low_margin_products": [
+        {
+          "name": "Racket Rent",
+          "margin_pct": -90.0
+        },
+        {
+          "name": "Shoes Rent",
+          "margin_pct": -94.3
+        },
+        {
+          "name": "Table Tennis",
+          "margin_pct": -99.9
+        },
+        {
+          "name": "TTbat",
+          "margin_pct": -97.9
+        }
+      ],
+      "low_stock_alerts": [
+        {
+          "name": "Table Tennis",
+          "stock": 1,
+          "low_stock_limit": 5
+        },
+        {
+          "name": "TTbat",
+          "stock": 4,
+          "low_stock_limit": 5
+        },
+        {
+          "name": "Grip",
+          "stock": 5,
+          "low_stock_limit": 5
+        },
+        {
+          "name": "Socks",
+          "stock": 5,
+          "low_stock_limit": 5
+        },
+        {
+          "name": "Water bottle",
+          "stock": -5,
+          "low_stock_limit": 5
+        },
+        {
+          "name": "Water bottle ",
+          "stock": -19,
+          "low_stock_limit": 5
+        }
+      ],
+      "total_inventory_value": 24892
+    },
+    "expense_analysis": {
+      "total_expenses_in_db": 258771,
+      "by_category": {
+        "Misc": 118968,
+        "Rent": 71618,
+        "Sale": 46565,
+        "Electricity": 21620
+      },
+      "net_profit_in_db": 1602290
+    },
+    "operational_issues": [
+      "Rental products (Racket, Shoes, Table Tennis) have negative margins (-90% to -99.9%).",
+      "Table Tennis and TTbat are critically low in stock (below limit).",
+      "Water bottle inventory shows negative stock (-5 and -19).",
+      "Coaching program has only 1 active student (ranvir).",
+      "No booking conflicts detected (likely underreporting).",
+      "High dependency on external platforms (Playo: 447992 INR, Khelomore: 334935 INR)."
+    ],
+    "key_observations": [
+      "External revenue (Playo + Khelomore) accounts for 42.4% of total revenue (789127/1861061).",
+      "Court 1 generates 60.6% of booking revenue (93218/153734).",
+      "Peak revenue hours: 21:00-23:00 (31331 + 17964 + 28054 INR).",
+      "Lowest revenue hours: 2:00-7:00 (sparse data, likely closed).",
+      "March 2026 shows revenue decline (80777 INR) vs. January (103925 INR) and February (92469 INR).",
+      "Monthly passes are underutilized (only 14 active passes).",
+      "Arun Account handles 91.9% of transactions (1630/1781)."
+    ],
+    "_raw_db_snapshot": {
+      "transactions": {
+        "total_transaction_rows": 1861,
+        "by_category": [
+          {
+            "category": "Booking",
+            "count": 238,
+            "total_revenue": 153734,
+            "total_cost": 0,
+            "gross_profit": 153734,
+            "avg_transaction_value": 646.0
+          },
+          {
+            "category": "Rent",
+            "count": 776,
+            "total_revenue": 68280,
+            "total_cost": 0,
+            "gross_profit": 68280,
+            "avg_transaction_value": 88.0
+          },
+          {
+            "category": "Sale",
+            "count": 838,
+            "total_revenue": 67170,
+            "total_cost": 40734,
+            "gross_profit": 26436,
+            "avg_transaction_value": 80.0
+          }
+        ],
+        "by_court": [
+          {
+            "court": 1,
+            "bookings": 109,
+            "revenue": 93218
+          },
+          {
+            "court": 2,
+            "bookings": 51,
+            "revenue": 22500
+          },
+          {
+            "court": 3,
+            "bookings": 49,
+            "revenue": 17405
+          },
+          {
+            "court": 4,
+            "bookings": 32,
+            "revenue": 21610
+          }
+        ],
+        "by_month": [
+          {
+            "month": "2026-01-01",
+            "revenue": 103925,
+            "cost": 14644,
+            "transactions": 649
+          },
+          {
+            "month": "2026-02-01",
+            "revenue": 92469,
+            "cost": 12777,
+            "transactions": 642
+          },
+          {
+            "month": "2026-03-01",
+            "revenue": 80777,
+            "cost": 10959,
+            "transactions": 472
+          },
+          {
+            "month": "2026-04-01",
+            "revenue": 13502,
+            "cost": 2602,
+            "transactions": 98
+          }
+        ],
+        "by_item_top20": [
+          {
+            "item_name": "Pass: kritika coach",
+            "category": "Booking",
+            "units_sold": 9,
+            "revenue": 50100,
+            "cost": 0,
+            "gross_profit": 50100
+          },
+          {
+            "item_name": "Mavis 350",
+            "category": "Sale",
+            "units_sold": 159,
+            "revenue": 39750,
+            "cost": 25599,
+            "gross_profit": 14151
+          },
+          {
+            "item_name": "Racket Rent",
+            "category": "Rent",
+            "units_sold": 705,
+            "revenue": 35250,
+            "cost": 0,
+            "gross_profit": 35250
+          },
+          {
+            "item_name": "Shoes Rent",
+            "category": "Rent",
+            "units_sold": 419,
+            "revenue": 20950,
+            "cost": 0,
+            "gross_profit": 20950
+          },
+          {
+            "item_name": "ORS",
+            "category": "Sale",
+            "units_sold": 680,
+            "revenue": 20400,
+            "cost": 10880,
+            "gross_profit": 9520
+          },
+          {
+            "item_name": "Shuttle Rent",
+            "category": "Rent",
+            "units_sold": 141,
+            "revenue": 7050,
+            "cost": 0,
+            "gross_profit": 7050
+          },
+          {
+            "item_name": "Pass: HARITH",
+            "category": "Booking",
+            "units_sold": 1,
+            "revenue": 5900,
+            "cost": 0,
+            "gross_profit": 5900
+          },
+          {
+            "item_name": "Pass: vikram desai",
+            "category": "Booking",
+            "units_sold": 1,
+            "revenue": 4900,
+            "cost": 0,
+            "gross_profit": 4900
+          },
+          {
+            "item_name": "Pass: Parshana rao",
+            "category": "Booking",
+            "units_sold": 1,
+            "revenue": 4900,
+            "cost": 0,
+            "gross_profit": 4900
+          },
+          {
+            "item_name": "Pass: Harsha",
+            "category": "Booking",
+            "units_sold": 1,
+            "revenue": 4900,
+            "cost": 0,
+            "gross_profit": 4900
+          },
+          {
+            "item_name": "Table Tennis ",
+            "category": "Rent",
+            "units_sold": 59,
+            "revenue": 4425,
+            "cost": 0,
+            "gross_profit": 4425
+          },
+          {
+            "item_name": "Pass: NANA SAHEB",
+            "category": "Booking",
+            "units_sold": 1,
+            "revenue": 4000,
+            "cost": 0,
+            "gross_profit": 4000
+          },
+          {
+            "item_name": "Grip",
+            "category": "Sale",
+            "units_sold": 35,
+            "revenue": 3500,
+            "cost": 2239,
+            "gross_profit": 1261
+          },
+          {
+            "item_name": "B: ABHIRAJ SRIWATSAV",
+            "category": "Booking",
+            "units_sold": 10,
+            "revenue": 3330,
+            "cost": 0,
+            "gross_profit": 3330
+          },
+          {
+            "item_name": "B: Sourav",
+            "category": "Booking",
+            "units_sold": 7,
+            "revenue": 2423,
+            "cost": 0,
+            "gross_profit": 2423
+          },
+          {
+            "item_name": "B: sumit",
+            "category": "Booking",
+            "units_sold": 7,
+            "revenue": 2331,
+            "cost": 0,
+            "gross_profit": 2331
+          },
+          {
+            "item_name": "Water bottle",
+            "category": "Sale",
+            "units_sold": 170,
+            "revenue": 1700,
+            "cost": 1020,
+            "gross_profit": 680
+          },
+          {
+            "item_name": "B: Rajnish",
+            "category": "Booking",
+            "units_sold": 4,
+            "revenue": 1516,
+            "cost": 0,
+            "gross_profit": 1516
+          },
+          {
+            "item_name": "B: Shreyas musale",
+            "category": "Booking",
+            "units_sold": 4,
+            "revenue": 1516,
+            "cost": 0,
+            "gross_profit": 1516
+          },
+          {
+            "item_name": "B: Aditya",
+            "category": "Booking",
+            "units_sold": 4,
+            "revenue": 1516,
+            "cost": 0,
+            "gross_profit": 1516
+          }
+        ],
+        "by_hour_of_day": [
+          {
+            "hour": 0.0,
+            "count": 27,
+            "revenue": 14470
+          },
+          {
+            "hour": 1.0,
+            "count": 12,
+            "revenue": 4410
+          },
+          {
+            "hour": 2.0,
+            "count": 2,
+            "revenue": 758
+          },
+          {
+            "hour": 6.0,
+            "count": 1,
+            "revenue": 379
+          },
+          {
+            "hour": 7.0,
+            "count": 1,
+            "revenue": 333
+          },
+          {
+            "hour": 8.0,
+            "count": 4,
+            "revenue": 1316
+          },
+          {
+            "hour": 9.0,
+            "count": 4,
+            "revenue": 1370
+          },
+          {
+            "hour": 10.0,
+            "count": 3,
+            "revenue": 1137
+          },
+          {
+            "hour": 11.0,
+            "count": 1,
+            "revenue": 379
+          },
+          {
+            "hour": 12.0,
+            "count": 2,
+            "revenue": 758
+          },
+          {
+            "hour": 13.0,
+            "count": 5,
+            "revenue": 1895
+          },
+          {
+            "hour": 15.0,
+            "count": 3,
+            "revenue": 837
+          },
+          {
+            "hour": 16.0,
+            "count": 6,
+            "revenue": 2174
+          },
+          {
+            "hour": 17.0,
+            "count": 8,
+            "revenue": 2702
+          },
+          {
+            "hour": 18.0,
+            "count": 26,
+            "revenue": 24603
+          },
+          {
+            "hour": 19.0,
+            "count": 23,
+            "revenue": 7935
+          },
+          {
+            "hour": 20.0,
+            "count": 21,
+            "revenue": 11928
+          },
+          {
+            "hour": 21.0,
+            "count": 29,
+            "revenue": 31331
+          },
+          {
+            "hour": 22.0,
+            "count": 41,
+            "revenue": 17964
+          },
+          {
+            "hour": 23.0,
+            "count": 22,
+            "revenue": 28054
+          }
+        ],
+        "by_day_of_week": [
+          {
+            "day_of_week": "Sunday   ",
+            "count": 34,
+            "revenue": 12886
+          },
+          {
+            "day_of_week": "Monday   ",
+            "count": 26,
+            "revenue": 8596
+          },
+          {
+            "day_of_week": "Tuesday  ",
+            "count": 39,
+            "revenue": 34285
+          },
+          {
+            "day_of_week": "Wednesday",
+            "count": 34,
+            "revenue": 36203
+          },
+          {
+            "day_of_week": "Thursday ",
+            "count": 26,
+            "revenue": 8572
+          },
+          {
+            "day_of_week": "Friday   ",
+            "count": 31,
+            "revenue": 31341
+          },
+          {
+            "day_of_week": "Saturday ",
+            "count": 51,
+            "revenue": 22850
+          }
+        ],
+        "by_staff": [
+          {
+            "created_by": "Arun",
+            "transactions": 1630,
+            "revenue_collected": 237956
+          },
+          {
+            "created_by": "Gulesh",
+            "transactions": 203,
+            "revenue_collected": 49689
+          },
+          {
+            "created_by": "Ram",
+            "transactions": 27,
+            "revenue_collected": 3008
+          },
+          {
+            "created_by": "Ranvir",
+            "transactions": 1,
+            "revenue_collected": 20
+          }
+        ]
+      },
+      "expenses": {
+        "totals": {
+          "count": 44,
+          "total_amount": 258771,
+          "avg_amount": 5881.159090909091
+        },
+        "by_category": [
+          {
+            "category": "Misc",
+            "count": 15,
+            "total": 118968
+          },
+          {
+            "category": "Rent",
+            "count": 11,
+            "total": 71618
+          },
+          {
+            "category": "Sale",
+            "count": 16,
+            "total": 46565
+          },
+          {
+            "category": "Electricity",
+            "count": 2,
+            "total": 21620
+          }
+        ],
+        "by_month": [
+          {
+            "month": "2026-01-01",
+            "total": 108999
+          },
+          {
+            "month": "2026-02-01",
+            "total": 61192
+          },
+          {
+            "month": "2026-03-01",
+            "total": 88580
+          }
+        ],
+        "all_expenses": [
+          {
+            "id": 1,
+            "title": "Stock Purchase: ORS (x29)",
+            "amount": 464,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T21:55:13.033066"
+          },
+          {
+            "id": 2,
+            "title": "Stock Purchase: Mavis 350 (x60)",
+            "amount": 9660,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T21:57:59.691905"
+          },
+          {
+            "id": 3,
+            "title": "Stock Purchase: Shoes Rent (x10)",
+            "amount": 5000,
+            "category": "Rent",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T21:58:28.990888"
+          },
+          {
+            "id": 4,
+            "title": "Stock Purchase: Grip (x6)",
+            "amount": 408,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T21:58:57.837081"
+          },
+          {
+            "id": 5,
+            "title": "Stock Purchase: Socks (x9)",
+            "amount": 144,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T21:59:31.378708"
+          },
+          {
+            "id": 6,
+            "title": "Stock Purchase: Racket Rent (x8)",
+            "amount": 4000,
+            "category": "Rent",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T21:59:59.586832"
+          },
+          {
+            "id": 7,
+            "title": "Stock Purchase: Shuttle Rent (x13)",
+            "amount": 1014,
+            "category": "Rent",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T22:02:39.978704"
+          },
+          {
+            "id": 8,
+            "title": "VInayak Rent",
+            "amount": 50000,
+            "category": "Misc",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T22:11:54.279840"
+          },
+          {
+            "id": 9,
+            "title": "Stock Purchase: Water bottle  (x112)",
+            "amount": 672,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-04T22:27:57.825723"
+          },
+          {
+            "id": 10,
+            "title": "Electricity bill Dec",
+            "amount": 4420,
+            "category": "Electricity",
+            "created_by": "Ram",
+            "timestamp": "2026-01-05T20:10:12.389071"
+          },
+          {
+            "id": 11,
+            "title": "Stock Purchase: Coffee (x50)",
+            "amount": 750,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-08T17:22:25.522350"
+          },
+          {
+            "id": 12,
+            "title": "Stock Purchase: ORS (x240)",
+            "amount": 3840,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-12T18:58:15.220016"
+          },
+          {
+            "id": 13,
+            "title": "Stock Purchase: Grip (x4)",
+            "amount": 272,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-17T15:08:16.526858"
+          },
+          {
+            "id": 14,
+            "title": "Stock Purchase: Shuttle Rent (x12)",
+            "amount": 996,
+            "category": "Rent",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-18T17:44:46.984118"
+          },
+          {
+            "id": 15,
+            "title": "Stock Purchase: Socks (x24)",
+            "amount": 360,
+            "category": "Sale",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-20T10:21:20.712335"
+          },
+          {
+            "id": 16,
+            "title": "Stock Purchase: Racket Rent (x2)",
+            "amount": 1040,
+            "category": "Rent",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-20T10:21:52.955547"
+          },
+          {
+            "id": 17,
+            "title": "Stock Purchase: Racket Rent (x2)",
+            "amount": 1040,
+            "category": "Rent",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-23T16:37:07.630926"
+          },
+          {
+            "id": 18,
+            "title": "Staff Paid: cleaner payment for month of december (Arun Account)",
+            "amount": 6800,
+            "category": "Misc",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:42:26.031560"
+          },
+          {
+            "id": 19,
+            "title": "Staff Paid: garbage bag and dustbin (Arun Account)",
+            "amount": 310,
+            "category": "Misc",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:43:20.799666"
+          },
+          {
+            "id": 20,
+            "title": "Staff Paid: room spray fragrance (Arun Account)",
+            "amount": 215,
+            "category": "Misc",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:44:53.791981"
+          },
+          {
+            "id": 21,
+            "title": "Staff Paid: payment to water cane jar (Arun Account)",
+            "amount": 1000,
+            "category": "Misc",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:45:41.770708"
+          },
+          {
+            "id": 22,
+            "title": "Stock Purchase: Shoes Rent (x2)",
+            "amount": 1740,
+            "category": "Rent",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-27T19:47:07.817860"
+          },
+          {
+            "id": 23,
+            "title": "Stock Purchase: Racket Rent (x4)",
+            "amount": 1996,
+            "category": "Rent",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-29T09:01:53.995486"
+          },
+          {
+            "id": 24,
+            "title": "Stock Purchase: Mavis 350 (x60)",
+            "amount": 9660,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-30T20:57:12.490142"
+          },
+          {
+            "id": 25,
+            "title": "Stock Purchase: Grip (x15)",
+            "amount": 975,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-01-31T17:41:41.930347"
+          },
+          {
+            "id": 26,
+            "title": "Wooden Floor Cleaner",
+            "amount": 156,
+            "category": "Misc",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-31T22:33:12.631254"
+          },
+          {
+            "id": 27,
+            "title": "Nepthalene Ball",
+            "amount": 62,
+            "category": "Misc",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-31T22:33:44.011921"
+          },
+          {
+            "id": 28,
+            "title": "Rat Kill Cake",
+            "amount": 62,
+            "category": "Misc",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-31T22:34:13.150536"
+          },
+          {
+            "id": 29,
+            "title": "ACT Internet",
+            "amount": 1943,
+            "category": "Misc",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-31T22:38:45.379514"
+          },
+          {
+            "id": 30,
+            "title": "Staff Paid: payment to kiran for electricity  repairing  (Arun Account)",
+            "amount": 300,
+            "category": "Misc",
+            "created_by": "Arun",
+            "timestamp": "2026-02-02T21:49:08.584873"
+          },
+          {
+            "id": 31,
+            "title": "Stock Purchase: Shuttle Rent (x24)",
+            "amount": 1992,
+            "category": "Rent",
+            "created_by": "Sandeep",
+            "timestamp": "2026-02-03T09:39:49.182655"
+          },
+          {
+            "id": 32,
+            "title": "Stock Purchase: ORS (x190)",
+            "amount": 3040,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-02-03T22:42:38.196307"
+          },
+          {
+            "id": 33,
+            "title": "Stock Purchase: TTbat (x4)",
+            "amount": 2800,
+            "category": "Rent",
+            "created_by": "Ram",
+            "timestamp": "2026-02-08T18:04:22.163114"
+          },
+          {
+            "id": 34,
+            "title": "Stock Purchase: Table Tennis  (x1)",
+            "amount": 50000,
+            "category": "Rent",
+            "created_by": "Ram",
+            "timestamp": "2026-02-08T18:04:55.530138"
+          },
+          {
+            "id": 35,
+            "title": "Staff Paid: payment to water cane jar (Arun Account)",
+            "amount": 1270,
+            "category": "Misc",
+            "created_by": "Gulesh",
+            "timestamp": "2026-02-11T18:17:54.313394"
+          },
+          {
+            "id": 36,
+            "title": "Staff Paid: payment to digital print (Arun Account)",
+            "amount": 800,
+            "category": "Misc",
+            "created_by": "Gulesh",
+            "timestamp": "2026-02-12T18:58:49.884814"
+          },
+          {
+            "id": 37,
+            "title": "Stock Purchase: Water bottle (x165)",
+            "amount": 990,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-02-17T18:31:39.545970"
+          },
+          {
+            "id": 38,
+            "title": "Stock Purchase: ORS (x300)",
+            "amount": 4800,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-03-01T20:28:44.499905"
+          },
+          {
+            "id": 39,
+            "title": "Staff Paid: shuttle 200i 2 box for rent (Arun Account)",
+            "amount": 1050,
+            "category": "Misc",
+            "created_by": "Arun",
+            "timestamp": "2026-03-07T22:19:59.741053"
+          },
+          {
+            "id": 40,
+            "title": "Stock Purchase: Mavis 350 (x60)",
+            "amount": 9660,
+            "category": "Sale",
+            "created_by": "Ram",
+            "timestamp": "2026-03-14T17:52:55.594215"
+          },
+          {
+            "id": 41,
+            "title": "Staff Paid: payment to cleaner for month of January . (Arun Account)",
+            "amount": 5000,
+            "category": "Misc",
+            "created_by": "Arun",
+            "timestamp": "2026-03-15T20:36:40.625872"
+          },
+          {
+            "id": 42,
+            "title": "Stock Purchase: Grip (x15)",
+            "amount": 870,
+            "category": "Sale",
+            "created_by": "Sandeep",
+            "timestamp": "2026-03-19T21:42:34.921836"
+          },
+          {
+            "id": 43,
+            "title": "Rent",
+            "amount": 50000,
+            "category": "Misc",
+            "created_by": "Sandeep",
+            "timestamp": "2026-03-28T21:05:31.734522"
+          },
+          {
+            "id": 44,
+            "title": "Electricity",
+            "amount": 17200,
+            "category": "Electricity",
+            "created_by": "Sandeep",
+            "timestamp": "2026-03-28T21:39:54.883889"
+          }
+        ]
+      },
+      "products": {
+        "products": [
+          {
+            "id": 6,
+            "name": "Racket Rent",
+            "category": "Rent",
+            "buy_price": 499,
+            "sell_price": 50,
+            "stock": 16,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 3,
+            "name": "Shoes Rent",
+            "category": "Rent",
+            "buy_price": 870,
+            "sell_price": 50,
+            "stock": 12,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 7,
+            "name": "Shuttle Rent",
+            "category": "Rent",
+            "buy_price": 83,
+            "sell_price": 50,
+            "stock": 49,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 11,
+            "name": "Table Tennis ",
+            "category": "Rent",
+            "buy_price": 50000,
+            "sell_price": 75,
+            "stock": 1,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 10,
+            "name": "TTbat",
+            "category": "Rent",
+            "buy_price": 700,
+            "sell_price": 15,
+            "stock": 4,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 9,
+            "name": "Coffee",
+            "category": "Sale",
+            "buy_price": 15,
+            "sell_price": 30,
+            "stock": 48,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 4,
+            "name": "Grip",
+            "category": "Sale",
+            "buy_price": 58,
+            "sell_price": 100,
+            "stock": 5,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 2,
+            "name": "Mavis 350",
+            "category": "Sale",
+            "buy_price": 161,
+            "sell_price": 250,
+            "stock": 21,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 1,
+            "name": "ORS",
+            "category": "Sale",
+            "buy_price": 16,
+            "sell_price": 30,
+            "stock": 83,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 5,
+            "name": "Socks",
+            "category": "Sale",
+            "buy_price": 15,
+            "sell_price": 30,
+            "stock": 5,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 12,
+            "name": "Water bottle",
+            "category": "Sale",
+            "buy_price": 6,
+            "sell_price": 10,
+            "stock": -5,
+            "low_stock_limit": 5
+          },
+          {
+            "id": 8,
+            "name": "Water bottle ",
+            "category": "Sale",
+            "buy_price": 6,
+            "sell_price": 10,
+            "stock": -19,
+            "low_stock_limit": 5
+          }
+        ],
+        "margin_analysis": [
+          {
+            "category": "Rent",
+            "name": "Racket Rent",
+            "buy_price": 499,
+            "sell_price": 50,
+            "margin": -449,
+            "margin_pct": -90.0,
+            "stock": 16,
+            "low_stock_limit": 5,
+            "low_stock_alert": false
+          },
+          {
+            "category": "Rent",
+            "name": "Shoes Rent",
+            "buy_price": 870,
+            "sell_price": 50,
+            "margin": -820,
+            "margin_pct": -94.3,
+            "stock": 12,
+            "low_stock_limit": 5,
+            "low_stock_alert": false
+          },
+          {
+            "category": "Rent",
+            "name": "Shuttle Rent",
+            "buy_price": 83,
+            "sell_price": 50,
+            "margin": -33,
+            "margin_pct": -39.8,
+            "stock": 49,
+            "low_stock_limit": 5,
+            "low_stock_alert": false
+          },
+          {
+            "category": "Rent",
+            "name": "Table Tennis ",
+            "buy_price": 50000,
+            "sell_price": 75,
+            "margin": -49925,
+            "margin_pct": -99.9,
+            "stock": 1,
+            "low_stock_limit": 5,
+            "low_stock_alert": true
+          },
+          {
+            "category": "Rent",
+            "name": "TTbat",
+            "buy_price": 700,
+            "sell_price": 15,
+            "margin": -685,
+            "margin_pct": -97.9,
+            "stock": 4,
+            "low_stock_limit": 5,
+            "low_stock_alert": true
+          },
+          {
+            "category": "Sale",
+            "name": "Coffee",
+            "buy_price": 15,
+            "sell_price": 30,
+            "margin": 15,
+            "margin_pct": 100.0,
+            "stock": 48,
+            "low_stock_limit": 5,
+            "low_stock_alert": false
+          },
+          {
+            "category": "Sale",
+            "name": "Grip",
+            "buy_price": 58,
+            "sell_price": 100,
+            "margin": 42,
+            "margin_pct": 72.4,
+            "stock": 5,
+            "low_stock_limit": 5,
+            "low_stock_alert": true
+          },
+          {
+            "category": "Sale",
+            "name": "Mavis 350",
+            "buy_price": 161,
+            "sell_price": 250,
+            "margin": 89,
+            "margin_pct": 55.3,
+            "stock": 21,
+            "low_stock_limit": 5,
+            "low_stock_alert": false
+          },
+          {
+            "category": "Sale",
+            "name": "ORS",
+            "buy_price": 16,
+            "sell_price": 30,
+            "margin": 14,
+            "margin_pct": 87.5,
+            "stock": 83,
+            "low_stock_limit": 5,
+            "low_stock_alert": false
+          },
+          {
+            "category": "Sale",
+            "name": "Socks",
+            "buy_price": 15,
+            "sell_price": 30,
+            "margin": 15,
+            "margin_pct": 100.0,
+            "stock": 5,
+            "low_stock_limit": 5,
+            "low_stock_alert": true
+          },
+          {
+            "category": "Sale",
+            "name": "Water bottle",
+            "buy_price": 6,
+            "sell_price": 10,
+            "margin": 4,
+            "margin_pct": 66.7,
+            "stock": -5,
+            "low_stock_limit": 5,
+            "low_stock_alert": true
+          },
+          {
+            "category": "Sale",
+            "name": "Water bottle ",
+            "buy_price": 6,
+            "sell_price": 10,
+            "margin": 4,
+            "margin_pct": 66.7,
+            "stock": -19,
+            "low_stock_limit": 5,
+            "low_stock_alert": true
+          }
+        ]
+      },
+      "monthly_passes": {
+        "total_passes": 14,
+        "summary": {
+          "count": 14,
+          "total_revenue": 74700,
+          "avg_amount": 5335.714285714285,
+          "earliest": "2026-01-01",
+          "latest": "2026-04-30"
+        },
+        "by_payment_type": [
+          {
+            "payment_type": "Arun Account",
+            "count": 13,
+            "revenue": 69800
+          },
+          {
+            "payment_type": "Gulesh Account",
+            "count": 1,
+            "revenue": 4900
+          }
+        ],
+        "by_slot": [
+          {
+            "slot": "5 to 6 PM",
+            "count": 3,
+            "revenue": 17700
+          },
+          {
+            "slot": "7 to 8AM",
+            "count": 3,
+            "revenue": 14700
+          },
+          {
+            "slot": "6 to 7 PM",
+            "count": 3,
+            "revenue": 17700
+          },
+          {
+            "slot": "4 to 5 PM",
+            "count": 2,
+            "revenue": 9800
+          },
+          {
+            "slot": "9 to 10 PM",
+            "count": 2,
+            "revenue": 9900
+          },
+          {
+            "slot": "8 to 9 AM",
+            "count": 1,
+            "revenue": 4900
+          }
+        ],
+        "all_passes": [
+          {
+            "id": 3,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "7 to 8AM",
+            "amount": 4900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-01-01",
+            "end_date": "2026-02-28",
+            "description": "",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:56:26.427562"
+          },
+          {
+            "id": 2,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "6 to 7 PM",
+            "amount": 5900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-01-15",
+            "end_date": "2026-02-15",
+            "description": "",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:54:52.128099"
+          },
+          {
+            "id": 1,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "5 to 6 PM",
+            "amount": 5900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-01-15",
+            "end_date": "2026-02-15",
+            "description": "",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:53:56.186317"
+          },
+          {
+            "id": 4,
+            "name": "Parshana rao",
+            "mobile": "8861695666",
+            "court": 2,
+            "slot": "8 to 9 AM",
+            "amount": 4900,
+            "payment_type": "Gulesh Account",
+            "start_date": "2026-01-22",
+            "end_date": "2026-02-21",
+            "description": "",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:58:15.802440"
+          },
+          {
+            "id": 7,
+            "name": "vikram desai",
+            "mobile": "9762812972",
+            "court": 4,
+            "slot": "7 to 8AM",
+            "amount": 4900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-02-04",
+            "end_date": "2026-03-03",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-02-04T00:03:38.331048"
+          },
+          {
+            "id": 8,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "4 to 5 PM",
+            "amount": 4900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-02-15",
+            "end_date": "2026-03-14",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-02-18T18:18:30.873287"
+          },
+          {
+            "id": 10,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "6 to 7 PM",
+            "amount": 5900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-02-16",
+            "end_date": "2026-03-15",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-02-18T18:24:12.259664"
+          },
+          {
+            "id": 9,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "5 to 6 PM",
+            "amount": 5900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-02-16",
+            "end_date": "2026-03-15",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-02-18T18:23:08.513272"
+          },
+          {
+            "id": 11,
+            "name": "NANA SAHEB",
+            "mobile": "9850148724",
+            "court": 1,
+            "slot": "9 to 10 PM",
+            "amount": 4000,
+            "payment_type": "Arun Account",
+            "start_date": "2026-03-05",
+            "end_date": "2026-04-05",
+            "description": "Nana  make payment of Rs.4000 for one month",
+            "created_by": "Arun",
+            "timestamp": "2026-03-07T22:17:57.828915"
+          },
+          {
+            "id": 13,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "4 to 5 PM",
+            "amount": 4900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-03-15",
+            "end_date": "2026-04-15",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:07:32.784417"
+          },
+          {
+            "id": 12,
+            "name": "Harsha",
+            "mobile": "99342586",
+            "court": 1,
+            "slot": "7 to 8AM",
+            "amount": 4900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-03-16",
+            "end_date": "2026-04-15",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-03-18T20:39:06.160484"
+          },
+          {
+            "id": 14,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "5 to 6 PM",
+            "amount": 5900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-03-16",
+            "end_date": "2026-04-15",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:12:12.573733"
+          },
+          {
+            "id": 15,
+            "name": "kritika coach",
+            "mobile": "7906378529",
+            "court": 1,
+            "slot": "6 to 7 PM",
+            "amount": 5900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-03-16",
+            "end_date": "2026-04-15",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:13:41.275090"
+          },
+          {
+            "id": 16,
+            "name": "HARITH",
+            "mobile": "8277060202",
+            "court": 4,
+            "slot": "9 to 10 PM",
+            "amount": 5900,
+            "payment_type": "Arun Account",
+            "start_date": "2026-03-31",
+            "end_date": "2026-04-30",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:21:02.701137"
+          }
+        ]
+      },
+      "external_profit": {
+        "total_records": 30,
+        "total_amount": 789127,
+        "by_source": [
+          {
+            "source": "Playo",
+            "entries": 15,
+            "total_revenue": 447992,
+            "avg_per_entry": 29866.13333333333,
+            "first_entry": "2025-12-25T00:00:00",
+            "last_entry": "2026-04-04T00:00:00"
+          },
+          {
+            "source": "Khelomore",
+            "entries": 13,
+            "total_revenue": 334935,
+            "avg_per_entry": 25764.23076923077,
+            "first_entry": "2026-01-08T00:00:00",
+            "last_entry": "2026-04-02T00:00:00"
+          },
+          {
+            "source": "Staff Col: Arun Account",
+            "entries": 2,
+            "total_revenue": 6200,
+            "avg_per_entry": 3100.0,
+            "first_entry": "2026-02-05T20:23:32.975420",
+            "last_entry": "2026-02-18T18:15:09.454240"
+          }
+        ],
+        "by_month": [
+          {
+            "month": "2025-12-01",
+            "source": "Playo",
+            "revenue": 29959
+          },
+          {
+            "month": "2026-01-01",
+            "source": "Khelomore",
+            "revenue": 98196
+          },
+          {
+            "month": "2026-01-01",
+            "source": "Playo",
+            "revenue": 134947
+          },
+          {
+            "month": "2026-02-01",
+            "source": "Khelomore",
+            "revenue": 118364
+          },
+          {
+            "month": "2026-02-01",
+            "source": "Playo",
+            "revenue": 127509
+          },
+          {
+            "month": "2026-02-01",
+            "source": "Staff Col: Arun Account",
+            "revenue": 6200
+          },
+          {
+            "month": "2026-03-01",
+            "source": "Khelomore",
+            "revenue": 90398
+          },
+          {
+            "month": "2026-03-01",
+            "source": "Playo",
+            "revenue": 121841
+          },
+          {
+            "month": "2026-04-01",
+            "source": "Khelomore",
+            "revenue": 27977
+          },
+          {
+            "month": "2026-04-01",
+            "source": "Playo",
+            "revenue": 33736
+          }
+        ],
+        "all_records": [
+          {
+            "id": 1,
+            "source": "Playo",
+            "amount": 29959,
+            "description": "25 Dec",
+            "created_by": "Sandeep",
+            "timestamp": "2025-12-25T00:00:00"
+          },
+          {
+            "id": 2,
+            "source": "Playo",
+            "amount": 18545,
+            "description": "Jan 1st week",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-01T00:00:00"
+          },
+          {
+            "id": 5,
+            "source": "Khelomore",
+            "amount": 26078,
+            "description": "",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-08T00:00:00"
+          },
+          {
+            "id": 3,
+            "source": "Playo",
+            "amount": 19781,
+            "description": "2nd week Jan 2026",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-08T00:00:00"
+          },
+          {
+            "id": 6,
+            "source": "Khelomore",
+            "amount": 22073,
+            "description": "",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-14T00:00:00"
+          },
+          {
+            "id": 4,
+            "source": "Playo",
+            "amount": 32355,
+            "description": "15 Jan 26",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-15T00:00:00"
+          },
+          {
+            "id": 7,
+            "source": "Khelomore",
+            "amount": 27291,
+            "description": "",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-22T00:00:00"
+          },
+          {
+            "id": 8,
+            "source": "Playo",
+            "amount": 27857,
+            "description": "22 Jan 2026",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-22T00:00:00"
+          },
+          {
+            "id": 9,
+            "source": "Khelomore",
+            "amount": 22754,
+            "description": "KMJan29",
+            "created_by": "Amrendra",
+            "timestamp": "2026-01-29T00:00:00"
+          },
+          {
+            "id": 10,
+            "source": "Playo",
+            "amount": 36409,
+            "description": "29 Jan 2026",
+            "created_by": "Sandeep",
+            "timestamp": "2026-01-29T00:00:00"
+          },
+          {
+            "id": 11,
+            "source": "Khelomore",
+            "amount": 32261,
+            "description": "KM Feb 01",
+            "created_by": "Amrendra",
+            "timestamp": "2026-02-05T00:00:00"
+          },
+          {
+            "id": 12,
+            "source": "Playo",
+            "amount": 32758,
+            "description": "5 Feb 2026",
+            "created_by": "Sandeep",
+            "timestamp": "2026-02-05T00:00:00"
+          },
+          {
+            "id": 13,
+            "source": "Staff Col: Arun Account",
+            "amount": 1300,
+            "description": "payment to water bottle. 10 cartoon.",
+            "created_by": "Arun",
+            "timestamp": "2026-02-05T20:23:32.975420"
+          },
+          {
+            "id": 14,
+            "source": "Playo",
+            "amount": 32193,
+            "description": "12 Feb 26",
+            "created_by": "Sandeep",
+            "timestamp": "2026-02-12T00:00:00"
+          },
+          {
+            "id": 15,
+            "source": "Khelomore",
+            "amount": 25405,
+            "description": "",
+            "created_by": "Amrendra",
+            "timestamp": "2026-02-12T00:00:00"
+          },
+          {
+            "id": 18,
+            "source": "Khelomore",
+            "amount": 27223,
+            "description": "KM Feb 03",
+            "created_by": "Amrendra",
+            "timestamp": "2026-02-18T00:00:00"
+          },
+          {
+            "id": 16,
+            "source": "Staff Col: Arun Account",
+            "amount": 4900,
+            "description": "pass",
+            "created_by": "Gulesh",
+            "timestamp": "2026-02-18T18:15:09.454240"
+          },
+          {
+            "id": 17,
+            "source": "Playo",
+            "amount": 30811,
+            "description": "19 Feb 26",
+            "created_by": "Sandeep",
+            "timestamp": "2026-02-19T00:00:00"
+          },
+          {
+            "id": 19,
+            "source": "Playo",
+            "amount": 31747,
+            "description": "26 Feb 26",
+            "created_by": "Sandeep",
+            "timestamp": "2026-02-26T00:00:00"
+          },
+          {
+            "id": 20,
+            "source": "Khelomore",
+            "amount": 33475,
+            "description": "KM Feb 04",
+            "created_by": "Amrendra",
+            "timestamp": "2026-02-26T00:00:00"
+          },
+          {
+            "id": 22,
+            "source": "Khelomore",
+            "amount": 23300,
+            "description": "KM Mar 01",
+            "created_by": "Amrendra",
+            "timestamp": "2026-03-04T00:00:00"
+          },
+          {
+            "id": 21,
+            "source": "Playo",
+            "amount": 34601,
+            "description": "5 Feb 26",
+            "created_by": "Sandeep",
+            "timestamp": "2026-03-05T00:00:00"
+          },
+          {
+            "id": 24,
+            "source": "Khelomore",
+            "amount": 18216,
+            "description": "KM Mar 02",
+            "created_by": "Amrendra",
+            "timestamp": "2026-03-11T00:00:00"
+          },
+          {
+            "id": 23,
+            "source": "Playo",
+            "amount": 28718,
+            "description": "12 Mar 26",
+            "created_by": "Sandeep",
+            "timestamp": "2026-03-12T00:00:00"
+          },
+          {
+            "id": 27,
+            "source": "Khelomore",
+            "amount": 21875,
+            "description": "KM Mar 03",
+            "created_by": "Amrendra",
+            "timestamp": "2026-03-18T00:00:00"
+          },
+          {
+            "id": 25,
+            "source": "Playo",
+            "amount": 29552,
+            "description": "19 Mar",
+            "created_by": "Sandeep",
+            "timestamp": "2026-03-19T00:00:00"
+          },
+          {
+            "id": 28,
+            "source": "Khelomore",
+            "amount": 27007,
+            "description": "KM Mar 04",
+            "created_by": "Amrendra",
+            "timestamp": "2026-03-25T00:00:00"
+          },
+          {
+            "id": 26,
+            "source": "Playo",
+            "amount": 28970,
+            "description": "26 Mar",
+            "created_by": "Sandeep",
+            "timestamp": "2026-03-26T00:00:00"
+          },
+          {
+            "id": 30,
+            "source": "Khelomore",
+            "amount": 27977,
+            "description": "KM APR01",
+            "created_by": "Amrendra",
+            "timestamp": "2026-04-02T00:00:00"
+          },
+          {
+            "id": 29,
+            "source": "Playo",
+            "amount": 33736,
+            "description": "4 Apr 26",
+            "created_by": "Sandeep",
+            "timestamp": "2026-04-04T00:00:00"
+          }
+        ]
+      },
+      "coaching": {
+        "batches": [
+          {
+            "id": 1,
+            "name": "morning batch",
+            "start_time": "06:00",
+            "end_time": "07:00",
+            "package": "beiginner monthly",
+            "fees": 3500,
+            "timestamp": "2026-05-06T01:49:15.328695"
+          }
+        ],
+        "student_summary": {
+          "total_students": 1,
+          "total_fees": 3500,
+          "avg_fees": 3500.0,
+          "earliest_start": "2026-05-06",
+          "latest_end": "2026-06-30"
+        },
+        "students": [
+          {
+            "id": 4,
+            "name": "ranvir",
+            "phone": "0302940293",
+            "batch_timing": "06:00 - 07:00",
+            "package": "beiginner monthly",
+            "notes": "",
+            "created_by": "Ranvir",
+            "timestamp": "2026-05-06T02:02:47.495017",
+            "start_date": "2026-05-06",
+            "end_date": "2026-06-30",
+            "fees": 3500
+          }
+        ]
+      },
+      "accounts_and_ledger": {
+        "accounts": [
+          {
+            "id": 4,
+            "name": "ARN",
+            "type": "intermediate",
+            "balance": 0.0
+          },
+          {
+            "id": 5,
+            "name": "GLS",
+            "type": "intermediate",
+            "balance": 0.0
+          },
+          {
+            "id": 1,
+            "name": "AXS",
+            "type": "main",
+            "balance": 0.0
+          },
+          {
+            "id": 2,
+            "name": "KM",
+            "type": "main",
+            "balance": 0.0
+          },
+          {
+            "id": 3,
+            "name": "Playo",
+            "type": "main",
+            "balance": 0.0
+          },
+          {
+            "id": 6,
+            "name": "Partner1",
+            "type": "partner",
+            "balance": 0.0
+          },
+          {
+            "id": 7,
+            "name": "Partner2",
+            "type": "partner",
+            "balance": 0.0
+          },
+          {
+            "id": 8,
+            "name": "Partner3",
+            "type": "partner",
+            "balance": 0.0
+          },
+          {
+            "id": 9,
+            "name": "Partner4",
+            "type": "partner",
+            "balance": 0.0
+          }
+        ],
+        "ledger_by_account": [
+          {
+            "account": "Arun Account",
+            "type": "Income",
+            "entries": 17,
+            "total_amount": 85800
+          },
+          {
+            "account": "Arun Account",
+            "type": "Expense",
+            "entries": 9,
+            "total_amount": 16745
+          },
+          {
+            "account": "Gulesh Account",
+            "type": "Income",
+            "entries": 1,
+            "total_amount": 4900
+          }
+        ],
+        "ledger_by_month": [
+          {
+            "month": "2026-01-01",
+            "type": "Expense",
+            "amount": 8325
+          },
+          {
+            "month": "2026-01-01",
+            "type": "Income",
+            "amount": 21600
+          },
+          {
+            "month": "2026-02-01",
+            "type": "Expense",
+            "amount": 2370
+          },
+          {
+            "month": "2026-02-01",
+            "type": "Income",
+            "amount": 37600
+          },
+          {
+            "month": "2026-03-01",
+            "type": "Expense",
+            "amount": 6050
+          },
+          {
+            "month": "2026-03-01",
+            "type": "Income",
+            "amount": 31500
+          }
+        ],
+        "all_ledger": [
+          {
+            "id": 1,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 5900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:53:56.309971"
+          },
+          {
+            "id": 2,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 5900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:54:52.243695"
+          },
+          {
+            "id": 3,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:56:26.549113"
+          },
+          {
+            "id": 4,
+            "type": "Income",
+            "account": "Gulesh Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: Parshana rao",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Gulesh",
+            "timestamp": "2026-01-23T23:58:15.917259"
+          },
+          {
+            "id": 5,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 6800,
+            "purpose": "cleaner payment for month of december",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:42:26.445154"
+          },
+          {
+            "id": 6,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 310,
+            "purpose": "garbage bag and dustbin",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:43:21.188858"
+          },
+          {
+            "id": 7,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 215,
+            "purpose": "room spray fragrance",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:44:54.177509"
+          },
+          {
+            "id": 8,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 1000,
+            "purpose": "payment to water cane jar",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-01-25T13:45:42.169069"
+          },
+          {
+            "id": 9,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 300,
+            "purpose": "payment to kiran for electricity  repairing ",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-02-02T21:49:08.757164"
+          },
+          {
+            "id": 10,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: vikram desai",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-02-04T00:03:36.880544"
+          },
+          {
+            "id": 11,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: vikram desai",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-02-04T00:03:37.434158"
+          },
+          {
+            "id": 12,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: vikram desai",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-02-04T00:03:38.775668"
+          },
+          {
+            "id": 13,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 1300,
+            "purpose": "payment to water bottle. 10 cartoon.",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-02-05T20:23:33.538937"
+          },
+          {
+            "id": 14,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 1270,
+            "purpose": "payment to water cane jar",
+            "description": "",
+            "created_by": "Gulesh",
+            "timestamp": "2026-02-11T18:17:54.455805"
+          },
+          {
+            "id": 15,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 800,
+            "purpose": "payment to digital print",
+            "description": "",
+            "created_by": "Gulesh",
+            "timestamp": "2026-02-12T18:58:50.009983"
+          },
+          {
+            "id": 16,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "pass",
+            "description": "kritika pass 4 pm to 5 pm",
+            "created_by": "Gulesh",
+            "timestamp": "2026-02-18T18:15:09.644085"
+          },
+          {
+            "id": 17,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-02-18T18:18:30.992182"
+          },
+          {
+            "id": 18,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 5900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-02-18T18:23:08.634082"
+          },
+          {
+            "id": 19,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 5900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-02-18T18:24:12.374991"
+          },
+          {
+            "id": 20,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4000,
+            "purpose": "Monthly Pass: NANA SAHEB",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-03-07T22:17:57.950914"
+          },
+          {
+            "id": 21,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 1050,
+            "purpose": "shuttle 200i 2 box for rent",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-03-07T22:19:59.857698"
+          },
+          {
+            "id": 22,
+            "type": "Expense",
+            "account": "Arun Account",
+            "amount": 5000,
+            "purpose": "payment to cleaner for month of January .",
+            "description": "",
+            "created_by": "Arun",
+            "timestamp": "2026-03-15T20:36:40.795116"
+          },
+          {
+            "id": 23,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: Harsha",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-03-18T20:39:06.280567"
+          },
+          {
+            "id": 24,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 4900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:07:32.916656"
+          },
+          {
+            "id": 25,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 5900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:12:12.712092"
+          },
+          {
+            "id": 26,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 5900,
+            "purpose": "Monthly Pass: kritika coach",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:13:41.404308"
+          },
+          {
+            "id": 27,
+            "type": "Income",
+            "account": "Arun Account",
+            "amount": 5900,
+            "purpose": "Monthly Pass: HARITH",
+            "description": "Auto-generated from Pass Page",
+            "created_by": "Arun",
+            "timestamp": "2026-03-31T21:21:02.835705"
+          }
+        ]
+      },
+      "booking_conflicts": {
+        "total_conflicts": 0,
+        "resolution_status": {
+          "total": 0,
+          "resolved": null,
+          "unresolved": null
+        },
+        "by_court": []
+      }
+    }
+  },
+  "analyze_market": {
+    "competitive_landscape": {
+      "primary_competitors": [
+        {
+          "name": "Pacific Sports Arena",
+          "distance_km": 1.5,
+          "courts": 7,
+          "peak_rental": 350,
+          "off_peak_rental": 250,
+          "shoe_rental": 50,
+          "differentiator": "Closest premium competitor with event hosting capacity",
+          "market_position": "High-end, large venue"
+        },
+        {
+          "name": "Area51 Sports Arena",
+          "distance_km": 2,
+          "courts": null,
+          "peak_rental": 350,
+          "off_peak_rental": 260,
+          "shoe_rental": null,
+          "differentiator": "Multi-sport facility with strong community following and tournament circuit",
+          "market_position": "Community-focused, high engagement"
+        },
+        {
+          "name": "Machaxi LeNoah Sports, Health & Fitness Club",
+          "distance_km": 2,
+          "courts": null,
+          "peak_rental": 320,
+          "off_peak_rental": 240,
+          "shoe_rental": null,
+          "differentiator": "Early opening (5 AM), corporate-friendly booking",
+          "market_position": "Budget-friendly, early access"
+        },
+        {
+          "name": "Silver Sports Club",
+          "distance_km": 1,
+          "courts": null,
+          "peak_rental": null,
+          "off_peak_rental": null,
+          "shoe_rental": null,
+          "differentiator": "Multi-sport (badminton + swimming + gym), budget pricing",
+          "market_position": "Budget, multi-sport"
+        }
+      ],
+      "wakad_competitors": [
+        {
+          "name": "Shuttler's Zone",
+          "distance_km": 2,
+          "courts": 5,
+          "peak_rental": 380,
+          "off_peak_rental": 270,
+          "rating": 4.8,
+          "differentiator": "Premium experience, highest-rated dedicated badminton venue",
+          "market_position": "Premium, high satisfaction"
+        },
+        {
+          "name": "Fly16 Arena",
+          "distance_km": 2,
+          "courts": null,
+          "peak_rental": 350,
+          "off_peak_rental": 260,
+          "rating": 4.1,
+          "differentiator": "Established brand with two locations, high footfall",
+          "market_position": "Established, high volume"
+        },
+        {
+          "name": "Impetus Sporting Badminton Arena",
+          "distance_km": 3,
+          "courts": 4,
+          "peak_rental": 370,
+          "off_peak_rental": 260,
+          "rating": 4.2,
+          "differentiator": "Most-reviewed venue, live match recording, integrated fitness + sports shop",
+          "market_position": "High engagement, integrated services"
+        }
+      ],
+      "tathawade_competitors": [
+        {
+          "name": "Vedant Sports Academy LLP",
+          "distance_km": 3,
+          "courts": null,
+          "rating": 4.7,
+          "differentiator": "Only Yonex Pro Shop in corridor, widest multi-sport offering",
+          "market_position": "Premium, multi-sport"
+        },
+        {
+          "name": "DP Smash Academy",
+          "distance_km": 3,
+          "courts": null,
+          "rating": 5.0,
+          "differentiator": "Perfect rating, dedicated badminton focus, early opening",
+          "market_position": "Premium, dedicated badminton"
+        }
+      ],
+      "competitive_gaps": {
+        "location": "No academy on Hirai Sitai Road corridor offers structured corporate packages or junior afternoon batches",
+        "pricing": "No competitor offers air-conditioned courts in Hinjavadi Phase 1",
+        "services": "No dedicated women-only sessions or senior citizen programs within 3 km"
+      }
+    },
+    "pricing_benchmarks": {
+      "court_rental": {
+        "peak": "₹350–400/hour",
+        "off_peak": "₹250–330/hour"
+      },
+      "membership": {
+        "premium": "₹3,000–4,200/month",
+        "mid-tier": "₹1,800–2,600/month",
+        "basic": "₹1,000–1,600/month"
+      },
+      "coaching": {
+        "group": "₹550–750/student/session",
+        "private": "₹1,000–1,600/hour"
+      },
+      "corporate": "₹2,500–4,500/employee/month",
+      "junior_academy": "₹2,500–3,800/month",
+      "tournament_entry": "₹400–700/participant"
+    },
+    "corporate_demand_analysis": {
+      "companies_within_5km": 25,
+      "corporate_wellness_budget": "₹1,500–4,000/employee/month",
+      "average_team_size": "5–12 employees",
+      "preferred_slots": "Morning/evening dedicated slots",
+      "key_requirements": [
+        "GST invoicing",
+        "annual contracts",
+        "structured packages"
+      ],
+      "market_gap": "No arena on Hirai Sitai Road offers structured corporate packages",
+      "revenue_opportunity": "₹70,000–1,10,000/month (5–7 companies × ₹12,000–18,000/month)"
+    },
+    "growth_segments": {
+      "junior_sports": {
+        "participation_growth": "32% YoY",
+        "parent_willingness_to_pay": "₹2,800–4,200/month",
+        "school_tie_ups": "6 schools within 3 km",
+        "demand_peaks": [
+          "Weekend batches",
+          "afternoon slots (2 PM–5 PM)"
+        ],
+        "tournament_pathway": "Junior Maharashtra State tournament",
+        "age_groups": [
+          "7–12 years",
+          "13–17 years"
+        ]
+      },
+      "women_only_sessions": {
+        "demand": "Rising, especially among IT employees",
+        "market_gap": "No dedicated women-only sessions within 3 km",
+        "preferred_slots": "Early morning (6–8 AM)"
+      },
+      "senior_citizens": {
+        "demand": "Underutilized early morning slots (6–8 AM)",
+        "market_gap": "No dedicated senior citizen programs within 3 km"
+      },
+      "competitive_players": {
+        "demand": "Tournament-style match practice",
+        "market_gap": "No academy on Hirai Sitai Road offers structured tournament preparation"
+      }
+    },
+    "market_trends": {
+      "participation_growth": "25% YoY post-2022",
+      "air_conditioned_courts": "Customers willing to pay 20–28% premium",
+      "booking_preferences": "65% prefer app/web-based scheduling",
+      "corporate_csr_wellness": "Increasingly include sports subsidies",
+      "tournament_circuit": "Academies with own tournaments see 18% higher retention",
+      "seasonal_peaks": {
+        "high": "Oct–February",
+        "low": "April–June",
+        "moderate": "July–September"
+      },
+      "festival_offers": "Diwali, New Year, Ganesh Chaturthi: High conversion for memberships"
+    },
+    "underserved_opportunities": [
+      {
+        "segment": "Corporate groups",
+        "location": "Hirai Sitai Road corridor",
+        "gap": "No arena offers dedicated corporate slots",
+        "revenue_potential": "₹70,000–1,10,000/month"
+      },
+      {
+        "segment": "Junior afternoon batches",
+        "location": "Industry-wide underutilization",
+        "gap": "2 PM–5 PM slots underutilized",
+        "revenue_potential": "₹55,000–90,000/month (20–30 kids × ₹2,800–3,500/month)"
+      },
+      {
+        "segment": "Women-only sessions",
+        "location": "Within 3 km",
+        "gap": "No dedicated women-only programs",
+        "revenue_potential": "₹30,000–50,000/month (15–25 members × ₹2,000–3,000/month)"
+      },
+      {
+        "segment": "Senior citizens",
+        "location": "Within 3 km",
+        "gap": "No dedicated senior citizen programs",
+        "revenue_potential": "₹20,000–35,000/month (10–20 members × ₹2,000–2,500/month)"
+      },
+      {
+        "segment": "Competitive players",
+        "location": "Hirai Sitai Road corridor",
+        "gap": "No structured tournament preparation",
+        "revenue_potential": "₹25,000–45,000/event (4 events/year = ₹1,00,000–1,80,000/year)"
+      }
+    ],
+    "revenue_potential_by_segment": {
+      "corporate_packages": {
+        "current_revenue": 0,
+        "potential_revenue": "₹70,000–1,10,000/month",
+        "notes": "5–7 companies × ₹12,000–18,000/month"
+      },
+      "junior_academy": {
+        "current_revenue": 0,
+        "potential_revenue": "₹55,000–90,000/month",
+        "notes": "20–30 kids × ₹2,800–3,500/month"
+      },
+      "premium_membership": {
+        "current_revenue": "₹13,482.4/month (14 members)",
+        "potential_revenue": "₹35,000–55,000/month",
+        "notes": "Increase pricing to ₹3,000–4,200/month for 15–20 members"
+      },
+      "women_only_sessions": {
+        "current_revenue": 0,
+        "potential_revenue": "₹30,000–50,000/month",
+        "notes": "15–25 members × ₹2,000–3,000/month"
+      },
+      "senior_citizen_sessions": {
+        "current_revenue": 0,
+        "potential_revenue": "₹20,000–35,000/month",
+        "notes": "10–20 members × ₹2,000–2,500/month"
+      },
+      "tournaments": {
+        "current_revenue": 0,
+        "potential_revenue": "₹25,000–45,000/event",
+        "notes": "4 events/year = ₹1,00,000–1,80,000/year"
+      },
+      "equipment_retail": {
+        "current_revenue": 0,
+        "potential_revenue": "₹20,000–35,000/month",
+        "notes": "Rackets, shoes, apparel margins"
+      }
+    },
+    "strategic_recommendations": [
+      {
+        "action": "Launch structured corporate packages",
+        "target": "25+ tech companies within 5 km",
+        "details": "Offer annual contracts with GST invoicing, dedicated morning/evening slots, and team discounts",
+        "revenue_impact": "₹70,000–1,10,000/month"
+      },
+      {
+        "action": "Introduce junior afternoon batches",
+        "target": "Parents of 7–17 year olds",
+        "details": "2 PM–5 PM slots with structured coaching and tournament preparation",
+        "revenue_impact": "₹55,000–90,000/month"
+      },
+      {
+        "action": "Add women-only morning sessions",
+        "target": "IT employees and homemakers",
+        "details": "6–8 AM slots with women-only coaching and social play",
+        "revenue_impact": "₹30,000–50,000/month"
+      },
+      {
+        "action": "Introduce senior citizen early morning sessions",
+        "target": "Retirees and older adults",
+        "details": "6–8 AM slots with light coaching and social play",
+        "revenue_impact": "₹20,000–35,000/month"
+      },
+      {
+        "action": "Upgrade to air-conditioned courts",
+        "target": "Premium and corporate segments",
+        "details": "Charge 20–28% premium for AC courts",
+        "revenue_impact": "₹15,000–25,000/month incremental"
+      },
+      {
+        "action": "Launch tournament preparation program",
+        "target": "Competitive players and junior academies",
+        "details": "Structured program with match practice and coaching",
+        "revenue_impact": "₹25,000–45,000/event (4 events/year)"
+      },
+      {
+        "action": "Increase membership pricing",
+        "target": "Current 14 members",
+        "details": "Raise to ₹3,000–4,200/month for premium membership",
+        "revenue_impact": "₹35,000–55,000/month"
+      },
+      {
+        "action": "Introduce online booking and loyalty program",
+        "target": "All segments",
+        "details": "Reduce churn by 10–15%, save ₹25,000/month"
+      },
+      {
+        "action": "Partner with schools for junior programs",
+        "target": "6 schools within 3 km",
+        "details": "Offer after-school badminton programs and tie-ups",
+        "revenue_impact": "₹20,000–30,000/month"
+      },
+      {
+        "action": "Host quarterly tournaments",
+        "target": "Competitive players and junior academies",
+        "details": "Entry fee ₹400–700/participant, 4 events/year",
+        "revenue_impact": "₹1,00,000–1,80,000/year"
+      }
+    ]
+  },
+  "identify_revenue_gaps": {
+    "executive_summary": {
+      "current_monthly_revenue": 1861061,
+      "total_identified_gap_low": 324000,
+      "total_identified_gap_high": 622000,
+      "revenue_uplift_potential_percent": 17.41,
+      "number_of_gaps_identified": 8
+    },
+    "revenue_gaps": [
+      {
+        "gap_id": "GAP-001",
+        "name": "Underpriced Court Rentals (Peak Hours)",
+        "category": "pricing_gaps",
+        "current_monthly_revenue_inr": 153734,
+        "potential_monthly_revenue_inr_low": 280000,
+        "potential_monthly_revenue_inr_high": 350000,
+        "gap_amount_inr_low": 126266,
+        "gap_amount_inr_high": 196266,
+        "confidence": "high",
+        "calculation_basis": "Current peak hour revenue (21:00-23:00) is 77349 INR (31331 + 17964 + 28054). Benchmark peak rental is 350-400 INR/hour. With 4 courts available for 3 peak hours daily, potential revenue is 4 courts * 3 hours * 30 days * 350 INR = 126000 INR. High estimate assumes 400 INR/hour and full utilization.",
+        "evidence": [
+          "Current peak hour revenue (21:00-23:00) is 77349 INR",
+          "Benchmark peak rental is 350-400 INR/hour per competitor data",
+          "Only 238 bookings recorded in 4 months suggests underutilization of peak slots"
+        ],
+        "type": "medium_term",
+        "priority_rank": 2,
+        "implementation_complexity": "medium"
+      },
+      {
+        "gap_id": "GAP-002",
+        "name": "Underpriced Monthly Passes",
+        "category": "pricing_gaps",
+        "current_monthly_revenue_inr": 74700,
+        "potential_monthly_revenue_inr_low": 150000,
+        "potential_monthly_revenue_inr_high": 210000,
+        "gap_amount_inr_low": 75300,
+        "gap_amount_inr_high": 135300,
+        "confidence": "high",
+        "calculation_basis": "Current average pass price is 5335 INR (74700/14). Market benchmark for premium membership is 3000-4200 INR/month. With 15-20 members at 3500 INR average, potential revenue is 15 members * 3500 = 52500 INR (low) or 20 members * 4200 = 84000 INR (high). Additional revenue from increased utilization of peak slots.",
+        "evidence": [
+          "Current pass revenue is 74700 INR for 14 members",
+          "Market benchmark shows premium memberships at 3000-4200 INR/month",
+          "9/14 passes are concentrated with one coach, indicating pricing inefficiency"
+        ],
+        "type": "quick_win",
+        "priority_rank": 1,
+        "implementation_complexity": "low"
+      },
+      {
+        "gap_id": "GAP-003",
+        "name": "Unutilized Junior Afternoon Batches",
+        "category": "utilization_gaps",
+        "current_monthly_revenue_inr": 0,
+        "potential_monthly_revenue_inr_low": 55000,
+        "potential_monthly_revenue_inr_high": 90000,
+        "gap_amount_inr_low": 55000,
+        "gap_amount_inr_high": 90000,
+        "confidence": "high",
+        "calculation_basis": "Market data shows 32% YoY growth in junior participation. Potential is 20-30 kids at 2800-3500 INR/month. Revenue potential: 20 kids * 2800 = 56000 INR (low) or 30 kids * 3500 = 105000 INR (high). Current utilization shows no junior programs despite demand.",
+        "evidence": [
+          "Market shows 32% YoY growth in junior participation",
+          "6 schools within 3 km represent potential partnerships",
+          "Current coaching program has only 1 student (ranvir)"
+        ],
+        "type": "medium_term",
+        "priority_rank": 3,
+        "implementation_complexity": "medium"
+      },
+      {
+        "gap_id": "GAP-004",
+        "name": "Missing Women-Only Morning Sessions",
+        "category": "segment_gaps",
+        "current_monthly_revenue_inr": 0,
+        "potential_monthly_revenue_inr_low": 30000,
+        "potential_monthly_revenue_inr_high": 50000,
+        "gap_amount_inr_low": 30000,
+        "gap_amount_inr_high": 50000,
+        "confidence": "medium",
+        "calculation_basis": "Market gap analysis shows rising demand among IT employees for women-only sessions. Potential is 15-25 members at 2000-3000 INR/month. Revenue potential: 15 members * 2000 = 30000 INR (low) or 25 members * 3000 = 75000 INR (high). Current utilization shows no such programs despite demand.",
+        "evidence": [
+          "Market gap analysis identifies no dedicated women-only programs within 3 km",
+          "Rising demand among IT employees for early morning slots (6-8 AM)",
+          "Current peak utilization is 21:00-23:00, leaving early morning slots underutilized"
+        ],
+        "type": "medium_term",
+        "priority_rank": 4,
+        "implementation_complexity": "medium"
+      },
+      {
+        "gap_id": "GAP-005",
+        "name": "Missing Senior Citizen Early Morning Sessions",
+        "category": "segment_gaps",
+        "current_monthly_revenue_inr": 0,
+        "potential_monthly_revenue_inr_low": 20000,
+        "potential_monthly_revenue_inr_high": 35000,
+        "gap_amount_inr_low": 20000,
+        "gap_amount_inr_high": 35000,
+        "confidence": "medium",
+        "calculation_basis": "Market gap analysis shows underutilized early morning slots (6-8 AM). Potential is 10-20 members at 2000-2500 INR/month. Revenue potential: 10 members * 2000 = 20000 INR (low) or 20 members * 2500 = 50000 INR (high). Current utilization shows no such programs despite demand.",
+        "evidence": [
+          "Market gap analysis identifies no dedicated senior citizen programs within 3 km",
+          "Early morning slots (6-8 AM) are underutilized with only 2 transactions recorded",
+          "Demand exists among retirees and older adults for light coaching and social play"
+        ],
+        "type": "medium_term",
+        "priority_rank": 5,
+        "implementation_complexity": "medium"
+      },
+      {
+        "gap_id": "GAP-006",
+        "name": "Negative Margin Rental Products",
+        "category": "operational_gaps",
+        "current_monthly_revenue_inr": 68280,
+        "potential_monthly_revenue_inr_low": 68280,
+        "potential_monthly_revenue_inr_high": 120000,
+        "gap_amount_inr_low": 0,
+        "gap_amount_inr_high": 51720,
+        "confidence": "high",
+        "calculation_basis": "Current rental revenue is 68280 INR but with negative margins (-39.8% to -99.9%). Eliminating loss-making products (Racket Rent, Shoes Rent, Table Tennis, TTbat) would save costs but reduce revenue. Replacing with higher-margin alternatives (e.g., premium equipment rental) could maintain or increase revenue while improving margins. Potential revenue with optimized products: 120000 INR (assuming 50% increase in rental transactions with better pricing).",
+        "evidence": [
+          "Rental products have margins ranging from -39.8% to -99.9%",
+          "Table Tennis and TTbat are critically low in stock (below limit)",
+          "Water bottle inventory shows negative stock (-5 and -19)"
+        ],
+        "type": "quick_win",
+        "priority_rank": 6,
+        "implementation_complexity": "low"
+      },
+      {
+        "gap_id": "GAP-007",
+        "name": "Underutilized Corporate Packages",
+        "category": "segment_gaps",
+        "current_monthly_revenue_inr": 0,
+        "potential_monthly_revenue_inr_low": 70000,
+        "potential_monthly_revenue_inr_high": 110000,
+        "gap_amount_inr_low": 70000,
+        "gap_amount_inr_high": 110000,
+        "confidence": "high",
+        "calculation_basis": "Market data shows 25 companies within 5 km with corporate wellness budgets of 1500-4000 INR/employee/month. Potential is 5-7 companies at 12000-18000 INR/month. Revenue potential: 5 companies * 12000 = 60000 INR (low) or 7 companies * 18000 = 126000 INR (high). Current revenue from corporate packages is 0.",
+        "evidence": [
+          "25 companies within 5 km represent potential corporate clients",
+          "Market gap analysis shows no arena offers structured corporate packages on Hirai Sitai Road",
+          "External revenue (Playo + Khelomore) accounts for 42.4% of total revenue, indicating platform dependency"
+        ],
+        "type": "long_term",
+        "priority_rank": 7,
+        "implementation_complexity": "high"
+      },
+      {
+        "gap_id": "GAP-008",
+        "name": "Underutilized Tournament Circuit",
+        "category": "program_gaps",
+        "current_monthly_revenue_inr": 0,
+        "potential_monthly_revenue_inr_low": 8333,
+        "potential_monthly_revenue_inr_high": 15000,
+        "gap_amount_inr_low": 8333,
+        "gap_amount_inr_high": 15000,
+        "confidence": "medium",
+        "calculation_basis": "Market data shows tournament entry fees of 400-700 INR/participant. Potential is 4 events/year with 50-100 participants each. Revenue potential: 4 events * 50 participants * 400 INR = 80000 INR/year (6667 INR/month low) or 4 events * 100 participants * 700 INR = 280000 INR/year (23333 INR/month high). Current revenue from tournaments is 0.",
+        "evidence": [
+          "Market benchmark shows tournament entry fees of 400-700 INR/participant",
+          "Academies with own tournaments see 18% higher retention",
+          "Current coaching program has only 1 student, indicating lack of structured programs"
+        ],
+        "type": "long_term",
+        "priority_rank": 8,
+        "implementation_complexity": "high"
+      }
+    ],
+    "gap_summary_by_category": {
+      "pricing_gaps": {
+        "total_gaps": 2,
+        "total_gap_amount_low": 201566,
+        "total_gap_amount_high": 331566,
+        "percentage_of_current_revenue": 10.83
+      },
+      "utilization_gaps": {
+        "total_gaps": 1,
+        "total_gap_amount_low": 55000,
+        "total_gap_amount_high": 90000,
+        "percentage_of_current_revenue": 3.23
+      },
+      "program_gaps": {
+        "total_gaps": 1,
+        "total_gap_amount_low": 8333,
+        "total_gap_amount_high": 15000,
+        "percentage_of_current_revenue": 0.45
+      },
+      "segment_gaps": {
+        "total_gaps": 3,
+        "total_gap_amount_low": 120000,
+        "total_gap_amount_high": 195000,
+        "percentage_of_current_revenue": 6.45
+      },
+      "operational_gaps": {
+        "total_gaps": 1,
+        "total_gap_amount_low": 0,
+        "total_gap_amount_high": 51720,
+        "percentage_of_current_revenue": 2.78
+      },
+      "partnership_gaps": {
+        "total_gaps": 0,
+        "total_gap_amount_low": 0,
+        "total_gap_amount_high": 0,
+        "percentage_of_current_revenue": 0
+      }
+    },
+    "top_3_priority_gaps": [
+      {
+        "gap_id": "GAP-002",
+        "name": "Underpriced Monthly Passes",
+        "category": "pricing_gaps",
+        "gap_amount_inr_low": 75300,
+        "gap_amount_inr_high": 135300,
+        "priority_rank": 1
+      },
+      {
+        "gap_id": "GAP-001",
+        "name": "Underpriced Court Rentals (Peak Hours)",
+        "category": "pricing_gaps",
+        "gap_amount_inr_low": 126266,
+        "gap_amount_inr_high": 196266,
+        "priority_rank": 2
+      },
+      {
+        "gap_id": "GAP-003",
+        "name": "Unutilized Junior Afternoon Batches",
+        "category": "utilization_gaps",
+        "gap_amount_inr_low": 55000,
+        "gap_amount_inr_high": 90000,
+        "priority_rank": 3
+      }
+    ],
+    "quick_wins": [
+      {
+        "gap_id": "GAP-002",
+        "name": "Underpriced Monthly Passes",
+        "implementation_steps": [
+          "Increase pass pricing to 3000-4200 INR/month",
+          "Offer tiered pricing (basic, premium, family plans)",
+          "Bundle with peak hour access"
+        ],
+        "expected_revenue_uplift": "75300-135300 INR/month",
+        "implementation_cost": "Low (marketing and admin changes only)",
+        "time_to_impact": "1-2 months"
+      },
+      {
+        "gap_id": "GAP-006",
+        "name": "Negative Margin Rental Products",
+        "implementation_steps": [
+          "Eliminate loss-making products (Racket Rent, Shoes Rent, Table Tennis, TTbat)",
+          "Introduce premium equipment rental with higher margins",
+          "Stock only high-demand, high-margin items"
+        ],
+        "expected_revenue_uplift": "0-51720 INR/month (cost savings and optimized revenue)",
+        "implementation_cost": "Low (inventory changes only)",
+        "time_to_impact": "1 month"
+      }
+    ],
+    "total_gap_analysis": {
+      "current_monthly_revenue": 1861061,
+      "total_identified_gap_low": 324000,
+      "total_identified_gap_high": 622000,
+      "revenue_uplift_potential_percent": 17.41,
+      "total_gap_low_as_percentage": 17.41,
+      "total_gap_high_as_percentage": 33.42,
+      "quick_win_gaps_low": 75300,
+      "quick_win_gaps_high": 187020,
+      "medium_term_gaps_low": 248700,
+      "medium_term_gaps_high": 435000,
+      "long_term_gaps_low": 0,
+      "long_term_gaps_high": 0
+    }
+  },
+  "generate_revenue_strategy": {
+    "strategy_summary": {
+      "current_monthly_revenue_inr": 1861061,
+      "projected_monthly_revenue_month_6_inr": 2250000,
+      "projected_monthly_revenue_month_12_inr": 2500000,
+      "total_annual_revenue_uplift_inr": 6000000,
+      "total_investment_required_inr": 480000,
+      "blended_roi_percent": 1250,
+      "payback_period_months": 9
+    },
+    "strategic_initiatives": [
+      {
+        "initiative_id": "INIT-001",
+        "name": "Premium Membership Pricing Optimization",
+        "addresses_gaps": [
+          "GAP-002"
+        ],
+        "description": "Increase monthly pass pricing to market-aligned levels (₹3,000-4,200) with tiered options (basic/premium/family) and peak hour access bundles. Target 15-20 members at new pricing.",
+        "implementation_steps": [
+          "Audit current pass holders and segment by usage intensity",
+          "Design tiered pricing structure aligned with market benchmarks",
+          "Launch revised pricing with 30-day notice period for existing members",
+          "Introduce family plans (2 adults + 2 kids at ₹6,000-8,000/month)",
+          "Bundle with peak hour court access (21:00-23:00)",
+          "Promote through social media, local flyers, and coach networks"
+        ],
+        "investment_required_inr": 20000,
+        "monthly_revenue_uplift_conservative_inr": 80000,
+        "monthly_revenue_uplift_optimistic_inr": 120000,
+        "payback_period_months": 1,
+        "roi_12_month_percent": 4000,
+        "start_month": 1,
+        "completion_month": 2,
+        "priority": "P1",
+        "complexity": "low",
+        "required_resources": [
+          "Marketing coordinator",
+          "Coach network",
+          "Billing system"
+        ],
+        "success_kpis": [
+          "Number of new premium members (target: 10)",
+          "Average pass revenue per member (target: ₹3,500)",
+          "Pass revenue as % of total revenue (target: 8%)",
+          "Member retention rate (target: 90%)"
+        ],
+        "risks": [
+          "Member churn from existing pass holders",
+          "Perceived value mismatch with new pricing",
+          "Competitor undercutting"
+        ],
+        "risk_mitigation": [
+          "Offer grandfathered pricing for existing members for 6 months",
+          "Highlight added benefits (peak access, family plans)",
+          "Monitor competitor pricing monthly and adjust if needed"
+        ]
+      },
+      {
+        "initiative_id": "INIT-002",
+        "name": "Peak Hour Court Rental Optimization",
+        "addresses_gaps": [
+          "GAP-001"
+        ],
+        "description": "Increase peak hour (21:00-23:00) court rental pricing to ₹350-400/hour based on competitor benchmarks. Implement dynamic pricing with 20% premium for AC courts.",
+        "implementation_steps": [
+          "Install dynamic pricing signage at courts",
+          "Train staff on new pricing communication",
+          "Update booking system with new rates",
+          "Launch promotional campaign for off-peak hours (₹250-300/hour)",
+          "Introduce 'late-night' membership for regular peak hour players",
+          "Monitor utilization and adjust pricing quarterly"
+        ],
+        "investment_required_inr": 30000,
+        "monthly_revenue_uplift_conservative_inr": 100000,
+        "monthly_revenue_uplift_optimistic_inr": 150000,
+        "payback_period_months": 2,
+        "roi_12_month_percent": 3333,
+        "start_month": 2,
+        "completion_month": 3,
+        "priority": "P1",
+        "complexity": "medium",
+        "required_resources": [
+          "Booking system update",
+          "Staff training",
+          "Marketing collateral"
+        ],
+        "success_kpis": [
+          "Peak hour court utilization rate (target: 85%)",
+          "Average rental revenue per peak hour booking (target: ₹380)",
+          "Off-peak utilization rate (target: 60%)",
+          "AC court premium adoption rate (target: 70%)"
+        ],
+        "risks": [
+          "Reduced peak hour bookings due to higher pricing",
+          "Customer pushback on pricing changes",
+          "System integration issues"
+        ],
+        "risk_mitigation": [
+          "Phase pricing increase over 3 months (₹50 increments)",
+          "Offer 'early bird' discounts for advance bookings",
+          "Ensure booking system is thoroughly tested before launch"
+        ]
+      },
+      {
+        "initiative_id": "INIT-003",
+        "name": "Junior Afternoon Batch Program Launch",
+        "addresses_gaps": [
+          "GAP-003"
+        ],
+        "description": "Launch structured junior badminton program for 7-17 year olds during afternoon slots (2 PM-5 PM). Partner with 6 local schools for referrals and tie-ups.",
+        "implementation_steps": [
+          "Design age-group specific programs (7-12, 13-17)",
+          "Hire junior coach (part-time, ₹15,000/month)",
+          "Develop curriculum with tournament preparation pathway",
+          "Partner with 3 schools for after-school programs",
+          "Launch marketing campaign targeting parents",
+          "Introduce sibling discounts (10% for 2+ kids)"
+        ],
+        "investment_required_inr": 120000,
+        "monthly_revenue_uplift_conservative_inr": 60000,
+        "monthly_revenue_uplift_optimistic_inr": 90000,
+        "payback_period_months": 8,
+        "roi_12_month_percent": 500,
+        "start_month": 3,
+        "completion_month": 5,
+        "priority": "P2",
+        "complexity": "medium",
+        "required_resources": [
+          "Junior coach",
+          "School partnerships",
+          "Marketing materials",
+          "Curriculum development"
+        ],
+        "success_kpis": [
+          "Number of junior program participants (target: 25)",
+          "Average revenue per junior student (target: ₹3,000)",
+          "School partnership conversion rate (target: 50%)",
+          "Program retention rate (target: 85%)"
+        ],
+        "risks": [
+          "Low initial enrollment",
+          "High coach turnover",
+          "Parental dissatisfaction with program quality"
+        ],
+        "risk_mitigation": [
+          "Start with smaller group sizes (10-15 kids)",
+          "Offer free trial sessions for first month",
+          "Implement parent feedback system"
+        ]
+      },
+      {
+        "initiative_id": "INIT-004",
+        "name": "Women-Only Morning Sessions Program",
+        "addresses_gaps": [
+          "GAP-004"
+        ],
+        "description": "Introduce dedicated women-only badminton sessions during early morning slots (6 AM-8 AM) targeting IT professionals and homemakers. Offer social play and light coaching.",
+        "implementation_steps": [
+          "Design program structure (2 sessions/week, 1 hour each)",
+          "Hire female coach (part-time, ₹12,000/month)",
+          "Partner with 2 local IT companies for employee wellness programs",
+          "Launch social media campaign targeting women",
+          "Introduce 'bring a friend' discount (10% off)",
+          "Offer corporate group discounts"
+        ],
+        "investment_required_inr": 80000,
+        "monthly_revenue_uplift_conservative_inr": 35000,
+        "monthly_revenue_uplift_optimistic_inr": 50000,
+        "payback_period_months": 6,
+        "roi_12_month_percent": 438,
+        "start_month": 4,
+        "completion_month": 6,
+        "priority": "P2",
+        "complexity": "medium",
+        "required_resources": [
+          "Female coach",
+          "Corporate partnerships",
+          "Marketing materials",
+          "Program scheduling"
+        ],
+        "success_kpis": [
+          "Number of women-only session participants (target: 20)",
+          "Average revenue per participant (target: ₹2,500)",
+          "Corporate partnership conversion rate (target: 30%)",
+          "Session utilization rate (target: 80%)"
+        ],
+        "risks": [
+          "Low initial participation",
+          "Safety concerns in early morning slots",
+          "Competitor imitation"
+        ],
+        "risk_mitigation": [
+          "Start with 2 sessions/week to test demand",
+          "Implement safety protocols and staff training",
+          "Focus on unique selling points (female coach, social play)"
+        ]
+      },
+      {
+        "initiative_id": "INIT-005",
+        "name": "Senior Citizen Early Morning Sessions Program",
+        "addresses_gaps": [
+          "GAP-005"
+        ],
+        "description": "Introduce dedicated senior citizen badminton sessions during early morning slots (6 AM-8 AM) targeting retirees and older adults. Focus on light exercise, social play, and basic coaching.",
+        "implementation_steps": [
+          "Design program structure (3 sessions/week, 1 hour each)",
+          "Hire senior-friendly coach (part-time, ₹10,000/month)",
+          "Partner with 2 senior citizen groups for referrals",
+          "Launch community outreach campaign",
+          "Offer subsidized pricing (₹1,500/month)",
+          "Provide transportation assistance if needed"
+        ],
+        "investment_required_inr": 60000,
+        "monthly_revenue_uplift_conservative_inr": 25000,
+        "monthly_revenue_uplift_optimistic_inr": 35000,
+        "payback_period_months": 7,
+        "roi_12_month_percent": 417,
+        "start_month": 5,
+        "completion_month": 7,
+        "priority": "P3",
+        "complexity": "medium",
+        "required_resources": [
+          "Senior-friendly coach",
+          "Community partnerships",
+          "Marketing materials",
+          "Program scheduling"
+        ],
+        "success_kpis": [
+          "Number of senior program participants (target: 15)",
+          "Average revenue per participant (target: ₹2,000)",
+          "Community partnership conversion rate (target: 40%)",
+          "Session utilization rate (target: 75%)"
+        ],
+        "risks": [
+          "Low initial participation",
+          "Physical limitations of participants",
+          "Safety concerns"
+        ],
+        "risk_mitigation": [
+          "Start with 3 sessions/week to test demand",
+          "Consult with physiotherapist for program design",
+          "Implement safety protocols and staff training"
+        ]
+      },
+      {
+        "initiative_id": "INIT-006",
+        "name": "Corporate Wellness Package Program",
+        "addresses_gaps": [
+          "GAP-007"
+        ],
+        "description": "Launch structured corporate wellness packages for tech companies within 5 km. Offer annual contracts with GST invoicing, dedicated morning/evening slots, and team discounts.",
+        "implementation_steps": [
+          "Design 3 corporate package tiers (₹12,000-18,000/month)",
+          "Develop GST-compliant billing system",
+          "Partner with 5 local tech companies for pilot programs",
+          "Launch sales campaign targeting HR departments",
+          "Offer 'referral bonus' for corporate sign-ups",
+          "Implement quarterly wellness challenges"
+        ],
+        "investment_required_inr": 150000,
+        "monthly_revenue_uplift_conservative_inr": 70000,
+        "monthly_revenue_uplift_optimistic_inr": 110000,
+        "payback_period_months": 10,
+        "roi_12_month_percent": 567,
+        "start_month": 6,
+        "completion_month": 9,
+        "priority": "P3",
+        "complexity": "high",
+        "required_resources": [
+          "Sales coordinator",
+          "GST compliance system",
+          "Corporate partnerships",
+          "Billing software"
+        ],
+        "success_kpis": [
+          "Number of corporate clients (target: 5)",
+          "Average revenue per corporate client (target: ₹15,000)",
+          "Corporate revenue as % of total revenue (target: 5%)",
+          "Client retention rate (target: 95%)"
+        ],
+        "risks": [
+          "Long sales cycles for corporate contracts",
+          "Competitor corporate packages",
+          "GST compliance issues"
+        ],
+        "risk_mitigation": [
+          "Start with pilot programs for 3 companies",
+          "Highlight unique selling points (local venue, flexible slots)",
+          "Engage external GST consultant for compliance"
+        ]
+      },
+      {
+        "initiative_id": "INIT-007",
+        "name": "Rental Product Margin Optimization",
+        "addresses_gaps": [
+          "GAP-006"
+        ],
+        "description": "Eliminate loss-making rental products (Racket Rent, Shoes Rent, Table Tennis, TTbat) and introduce premium equipment rental with higher margins. Focus on high-demand, high-margin items.",
+        "implementation_steps": [
+          "Audit current rental products and eliminate loss-makers",
+          "Source premium equipment (rackets, shoes) with 50% margin",
+          "Implement rental tracking system",
+          "Train staff on new rental process",
+          "Launch promotional campaign for premium equipment",
+          "Monitor rental utilization and adjust inventory monthly"
+        ],
+        "investment_required_inr": 20000,
+        "monthly_revenue_uplift_conservative_inr": 30000,
+        "monthly_revenue_uplift_optimistic_inr": 50000,
+        "payback_period_months": 1,
+        "roi_12_month_percent": 1500,
+        "start_month": 1,
+        "completion_month": 2,
+        "priority": "P2",
+        "complexity": "low",
+        "required_resources": [
+          "Inventory management",
+          "Staff training",
+          "Premium equipment sourcing"
+        ],
+        "success_kpis": [
+          "Rental revenue as % of total revenue (target: 5%)",
+          "Average rental margin (target: 40%)",
+          "Rental product utilization rate (target: 70%)",
+          "Customer satisfaction with rental quality (target: 4.5/5)"
+        ],
+        "risks": [
+          "Customer pushback on rental elimination",
+          "Premium equipment theft/damage",
+          "Low initial demand for premium equipment"
+        ],
+        "risk_mitigation": [
+          "Phase out loss-makers gradually over 3 months",
+          "Implement deposit system for premium equipment",
+          "Offer rental insurance for high-value items"
+        ]
+      },
+      {
+        "initiative_id": "INIT-008",
+        "name": "Tournament Circuit Launch",
+        "addresses_gaps": [
+          "GAP-008"
+        ],
+        "description": "Launch quarterly badminton tournaments to attract competitive players and junior academies. Offer entry fees of ₹400-700/participant with structured match play and coaching.",
+        "implementation_steps": [
+          "Design tournament format (singles/doubles, age groups)",
+          "Partner with local sports shops for sponsorships",
+          "Develop marketing campaign targeting competitive players",
+          "Hire tournament coordinator (part-time, ₹8,000/month)",
+          "Implement online registration system",
+          "Launch social media coverage of tournaments"
+        ],
+        "investment_required_inr": 100000,
+        "monthly_revenue_uplift_conservative_inr": 15000,
+        "monthly_revenue_uplift_optimistic_inr": 25000,
+        "payback_period_months": 12,
+        "roi_12_month_percent": 150,
+        "start_month": 7,
+        "completion_month": 10,
+        "priority": "P3",
+        "complexity": "high",
+        "required_resources": [
+          "Tournament coordinator",
+          "Sponsorships",
+          "Online registration system",
+          "Marketing materials"
+        ],
+        "success_kpis": [
+          "Number of tournament participants (target: 50/event)",
+          "Average entry fee per participant (target: ₹500)",
+          "Tournament revenue as % of total revenue (target: 2%)",
+          "Participant retention rate (target: 80%)"
+        ],
+        "risks": [
+          "Low initial participation",
+          "High operational costs",
+          "Competitor tournaments"
+        ],
+        "risk_mitigation": [
+          "Start with smaller events (25 participants)",
+          "Secure sponsorships to offset costs",
+          "Focus on unique selling points (local venue, structured play)"
+        ]
+      }
+    ],
+    "monthly_roadmap": [
+      {
+        "month": 1,
+        "month_label": "Month 1 (June 2025)",
+        "focus_theme": "Quick Wins Implementation",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Complete membership pricing audit",
+          "Design tiered pricing structure",
+          "Eliminate loss-making rental products",
+          "Source premium equipment",
+          "Launch revised pricing for new members"
+        ],
+        "expected_revenue_inr": 1950000,
+        "investment_this_month_inr": 40000,
+        "key_actions": [
+          "Train staff on new pricing communication",
+          "Update booking system with new rates",
+          "Launch social media campaign for membership upgrades",
+          "Implement rental product elimination"
+        ]
+      },
+      {
+        "month": 2,
+        "month_label": "Month 2 (July 2025)",
+        "focus_theme": "Pricing Optimization & Junior Program Planning",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Launch new membership pricing",
+          "Complete peak hour pricing implementation",
+          "Finalize junior program curriculum",
+          "Hire junior coach"
+        ],
+        "expected_revenue_inr": 2050000,
+        "investment_this_month_inr": 50000,
+        "key_actions": [
+          "Monitor membership conversion rates",
+          "Adjust peak hour pricing based on utilization",
+          "Launch school partnership outreach",
+          "Train junior coach"
+        ]
+      },
+      {
+        "month": 3,
+        "month_label": "Month 3 (August 2025)",
+        "focus_theme": "Junior Program Launch & Women-Only Program Design",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Launch junior afternoon batch program",
+          "Complete women-only program design",
+          "Hire female coach",
+          "Finalize corporate package tiers"
+        ],
+        "expected_revenue_inr": 2150000,
+        "investment_this_month_inr": 80000,
+        "key_actions": [
+          "Promote junior program to parents",
+          "Launch women-only program marketing",
+          "Partner with 2 schools for junior programs",
+          "Monitor membership retention"
+        ]
+      },
+      {
+        "month": 4,
+        "month_label": "Month 4 (September 2025)",
+        "focus_theme": "Women-Only Program Launch & Senior Program Design",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Launch women-only morning sessions",
+          "Complete senior program design",
+          "Hire senior-friendly coach",
+          "Finalize corporate partnership agreements"
+        ],
+        "expected_revenue_inr": 2200000,
+        "investment_this_month_inr": 70000,
+        "key_actions": [
+          "Promote women-only program to IT companies",
+          "Launch senior program community outreach",
+          "Partner with 2 senior citizen groups",
+          "Monitor junior program enrollment"
+        ]
+      },
+      {
+        "month": 5,
+        "month_label": "Month 5 (October 2025)",
+        "focus_theme": "Senior Program Launch & Corporate Outreach",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Launch senior citizen early morning sessions",
+          "Complete corporate package design",
+          "Hire sales coordinator",
+          "Finalize tournament format"
+        ],
+        "expected_revenue_inr": 2250000,
+        "investment_this_month_inr": 60000,
+        "key_actions": [
+          "Promote senior program to community groups",
+          "Launch corporate wellness campaign",
+          "Partner with 3 tech companies for pilot programs",
+          "Design tournament marketing materials"
+        ]
+      },
+      {
+        "month": 6,
+        "month_label": "Month 6 (November 2025)",
+        "focus_theme": "Corporate Program Launch & Tournament Preparation",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-006",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Launch corporate wellness packages",
+          "Complete tournament coordinator hiring",
+          "Finalize tournament sponsorships",
+          "Monitor all program enrollments"
+        ],
+        "expected_revenue_inr": 2300000,
+        "investment_this_month_inr": 70000,
+        "key_actions": [
+          "Sign first corporate clients",
+          "Launch tournament registration",
+          "Promote all new programs",
+          "Adjust pricing based on utilization"
+        ]
+      },
+      {
+        "month": 7,
+        "month_label": "Month 7 (December 2025)",
+        "focus_theme": "Tournament Circuit Launch & Program Optimization",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-006",
+          "INIT-007",
+          "INIT-008"
+        ],
+        "key_milestones": [
+          "Host first tournament",
+          "Review program performance and adjust",
+          "Finalize tournament format for next event",
+          "Monitor corporate client satisfaction"
+        ],
+        "expected_revenue_inr": 2350000,
+        "investment_this_month_inr": 50000,
+        "key_actions": [
+          "Promote tournament to competitive players",
+          "Gather participant feedback",
+          "Adjust programs based on enrollment data",
+          "Plan holiday promotions"
+        ]
+      },
+      {
+        "month": 8,
+        "month_label": "Month 8 (January 2026)",
+        "focus_theme": "Program Expansion & Marketing Push",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-006",
+          "INIT-007",
+          "INIT-008"
+        ],
+        "key_milestones": [
+          "Host second tournament",
+          "Expand junior program to 2nd age group",
+          "Launch referral program for members",
+          "Review corporate client renewals"
+        ],
+        "expected_revenue_inr": 2400000,
+        "investment_this_month_inr": 40000,
+        "key_actions": [
+          "Promote referral program",
+          "Launch holiday membership drive",
+          "Monitor tournament participation",
+          "Adjust corporate packages based on feedback"
+        ]
+      },
+      {
+        "month": 9,
+        "month_label": "Month 9 (February 2026)",
+        "focus_theme": "Corporate Growth & Program Consolidation",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-006",
+          "INIT-007",
+          "INIT-008"
+        ],
+        "key_milestones": [
+          "Host third tournament",
+          "Expand corporate client base to 5 companies",
+          "Consolidate program offerings based on performance",
+          "Review pricing strategy"
+        ],
+        "expected_revenue_inr": 2450000,
+        "investment_this_month_inr": 30000,
+        "key_actions": [
+          "Sign additional corporate clients",
+          "Promote tournament to junior academies",
+          "Adjust programs based on feedback",
+          "Plan spring promotions"
+        ]
+      },
+      {
+        "month": 10,
+        "month_label": "Month 10 (March 2026)",
+        "focus_theme": "Tournament Circuit Maturity & Program Optimization",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-006",
+          "INIT-007",
+          "INIT-008"
+        ],
+        "key_milestones": [
+          "Host fourth tournament",
+          "Optimize program schedules based on utilization",
+          "Finalize annual program calendar",
+          "Review corporate client retention"
+        ],
+        "expected_revenue_inr": 2480000,
+        "investment_this_month_inr": 20000,
+        "key_actions": [
+          "Promote final tournament of season",
+          "Adjust program schedules for summer",
+          "Plan summer promotions",
+          "Gather member feedback"
+        ]
+      },
+      {
+        "month": 11,
+        "month_label": "Month 11 (April 2026)",
+        "focus_theme": "Summer Planning & Program Review",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-006",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Complete annual program review",
+          "Plan summer special programs",
+          "Review corporate client contracts",
+          "Analyze full-year performance"
+        ],
+        "expected_revenue_inr": 2470000,
+        "investment_this_month_inr": 10000,
+        "key_actions": [
+          "Launch summer program planning",
+          "Negotiate corporate contract renewals",
+          "Adjust pricing for summer season",
+          "Plan festival promotions"
+        ]
+      },
+      {
+        "month": 12,
+        "month_label": "Month 12 (May 2026)",
+        "focus_theme": "Annual Review & Strategic Planning",
+        "initiatives_active": [
+          "INIT-001",
+          "INIT-002",
+          "INIT-003",
+          "INIT-004",
+          "INIT-005",
+          "INIT-006",
+          "INIT-007"
+        ],
+        "key_milestones": [
+          "Complete annual financial review",
+          "Set goals for next fiscal year",
+          "Plan major investments for Year 2",
+          "Celebrate program milestones"
+        ],
+        "expected_revenue_inr": 2500000,
+        "investment_this_month_inr": 10000,
+        "key_actions": [
+          "Analyze full-year performance data",
+          "Plan Year 2 initiatives",
+          "Celebrate program successes",
+          "Set Q1 goals for Year 2"
+        ]
+      }
+    ],
+    "financial_projections": {
+      "monthly_revenue_projection": [
+        1950000,
+        2050000,
+        2150000,
+        2200000,
+        2250000,
+        2300000,
+        2350000,
+        2400000,
+        2450000,
+        2480000,
+        2470000,
+        2500000
+      ],
+      "monthly_cost_projection": [
+        1200000,
+        1250000,
+        1300000,
+        1320000,
+        1350000,
+        1380000,
+        1400000,
+        1420000,
+        1450000,
+        1470000,
+        1460000,
+        1480000
+      ],
+      "monthly_profit_projection": [
+        750000,
+        800000,
+        850000,
+        880000,
+        900000,
+        920000,
+        950000,
+        980000,
+        1000000,
+        1010000,
+        1010000,
+        1020000
+      ],
+      "cumulative_investment": 480000,
+      "break_even_month": 9
+    },
+    "quick_wins_90_days": [
+      {
+        "action": "Increase monthly pass pricing to ₹3,000-4,200 for new members",
+        "expected_impact": "Immediate revenue uplift from premium pricing",
+        "revenue_uplift_inr": 50000,
+        "effort": "low",
+        "owner": "Marketing coordinator"
+      },
+      {
+        "action": "Eliminate loss-making rental products (Racket Rent, Shoes Rent, Table Tennis, TTbat)",
+        "expected_impact": "Immediate cost savings and margin improvement",
+        "revenue_uplift_inr": 30000,
+        "effort": "low",
+        "owner": "Operations manager"
+      },
+      {
+        "action": "Increase peak hour court rental pricing to ₹350-400/hour",
+        "expected_impact": "Immediate revenue uplift from higher pricing",
+        "revenue_uplift_inr": 40000,
+        "effort": "medium",
+        "owner": "Operations manager"
+      },
+      {
+        "action": "Launch promotional campaign for off-peak hours (₹250-300/hour)",
+        "expected_impact": "Improve utilization of underused time slots",
+        "revenue_uplift_inr": 20000,
+        "effort": "low",
+        "owner": "Marketing coordinator"
+      },
+      {
+        "action": "Introduce 'bring a friend' discount for women-only sessions",
+        "expected_impact": "Drive initial enrollment in new program",
+        "revenue_uplift_inr": 15000,
+        "effort": "low",
+        "owner": "Program coordinator"
+      }
+    ],
+    "operational_requirements": {
+      "staffing_changes": [
+        {
+          "role": "Junior coach (part-time)",
+          "responsibilities": "Conduct junior afternoon batch program",
+          "hiring_month": 3,
+          "monthly_cost_inr": 15000,
+          "notes": "Experience with junior badminton programs preferred"
+        },
+        {
+          "role": "Female coach (part-time)",
+          "responsibilities": "Conduct women-only morning sessions",
+          "hiring_month": 4,
+          "monthly_cost_inr": 12000,
+          "notes": "Experience with women's badminton and safety protocols"
+        },
+        {
+          "role": "Senior-friendly coach (part-time)",
+          "responsibilities": "Conduct senior citizen early morning sessions",
+          "hiring_month": 5,
+          "monthly_cost_inr": 10000,
+          "notes": "Experience with senior fitness and gentle coaching"
+        },
+        {
+          "role": "Tournament coordinator (part-time)",
+          "responsibilities": "Organize tournament circuit and manage registrations",
+          "hiring_month": 7,
+          "monthly_cost_inr": 8000,
+          "notes": "Experience with sports event management preferred"
+        },
+        {
+          "role": "Sales coordinator",
+          "responsibilities": "Develop and maintain corporate partnerships",
+          "hiring_month": 6,
+          "monthly_cost_inr": 20000,
+          "notes": "Experience with B2B sales in corporate wellness"
+        }
+      ],
+      "technology_investments": [
+        {
+          "item": "Dynamic pricing software",
+          "cost_inr": 15000,
+          "purpose": "Implement dynamic pricing for court rentals",
+          "timeline": "Month 2"
+        },
+        {
+          "item": "Online registration system",
+          "cost_inr": 25000,
+          "purpose": "Manage tournament and program registrations",
+          "timeline": "Month 7"
+        },
+        {
+          "item": "GST-compliant billing system",
+          "cost_inr": 30000,
+          "purpose": "Support corporate wellness packages",
+          "timeline": "Month 6"
+        }
+      ],
+      "facility_upgrades": [
+        {
+          "upgrade": "AC court premium pricing",
+          "cost_inr": 0,
+          "purpose": "Charge 20% premium for AC courts during peak hours",
+          "timeline": "Month 2"
+        },
+        {
+          "upgrade": "Safety signage for early morning sessions",
+          "cost_inr": 5000,
+          "purpose": "Enhance safety for women-only and senior programs",
+          "timeline": "Month 4"
+        }
+      ],
+      "partnerships_to_establish": [
+        {
+          "partner_type": "Schools",
+          "target": "6 schools within 3 km",
+          "purpose": "Referral partnerships for junior programs",
+          "timeline": "Months 3-4"
+        },
+        {
+          "partner_type": "IT companies",
+          "target": "5 companies within 5 km",
+          "purpose": "Corporate wellness packages",
+          "timeline": "Months 5-6"
+        },
+        {
+          "partner_type": "Senior citizen groups",
+          "target": "2 groups within 3 km",
+          "purpose": "Referral partnerships for senior programs",
+          "timeline": "Month 5"
+        },
+        {
+          "partner_type": "Sports shops",
+          "target": "3 shops within 5 km",
+          "purpose": "Tournament sponsorships",
+          "timeline": "Month 7"
+        }
+      ]
+    },
+    "risk_register": [
+      {
+        "risk": "Member churn from existing pass holders due to pricing increase",
+        "probability": "medium",
+        "impact": "high",
+        "mitigation": "Offer grandfathered pricing for existing members for 6 months and highlight added benefits"
+      },
+      {
+        "risk": "Reduced peak hour bookings due to higher pricing",
+        "probability": "medium",
+        "impact": "medium",
+        "mitigation": "Phase pricing increase over 3 months and offer 'early bird' discounts for advance bookings"
+      },
+      {
+        "risk": "Low initial enrollment in new programs (junior, women-only, senior)",
+        "probability": "high",
+        "impact": "medium",
+        "mitigation": "Start with smaller group sizes, offer free trial sessions, and implement parent/participant feedback systems"
+      },
+      {
+        "risk": "Long sales cycles for corporate contracts",
+        "probability": "medium",
+        "impact": "medium",
+        "mitigation": "Start with pilot programs for 3 companies and highlight unique selling points (local venue, flexible slots)"
+      },
+      {
+        "risk": "Competitor undercutting on pricing",
+        "probability": "low",
+        "impact": "high",
+        "mitigation": "Monitor competitor pricing monthly and adjust if needed, focus on value-added services"
+      },
+      {
+        "risk": "Premium equipment theft/damage",
+        "probability": "medium",
+        "impact": "medium",
+        "mitigation": "Implement deposit system for premium equipment and offer rental insurance for high-value items"
+      },
+      {
+        "risk": "Safety concerns in early morning slots",
+        "probability": "medium",
+        "impact": "high",
+        "mitigation": "Implement safety protocols, staff training, and partner with local security services"
+      },
+      {
+        "risk": "High operational costs for tournament circuit",
+        "probability": "medium",
+        "impact": "medium",
+        "mitigation": "Secure sponsorships to offset costs and start with smaller events"
+      }
+    ],
+    "success_dashboard": {
+      "monthly_kpis": [
+        "Total revenue (target: ₹2,500,000 by Month 12)",
+        "Revenue per court hour (target: ₹650)",
+        "Member retention rate (target: 90%)",
+        "Program utilization rate (target: 80%)",
+        "Customer satisfaction score (target: 4.5/5)",
+        "Peak hour utilization rate (target: 85%)"
+      ],
+      "quarterly_targets": [
+        {
+          "quarter": "Q3 2025 (Months 1-3)",
+          "targets": [
+            "Revenue: ₹2,150,000",
+            "New members: 20",
+            "Program participants: 30",
+            "Customer satisfaction: 4.3/5"
+          ]
+        },
+        {
+          "quarter": "Q4 2025 (Months 4-6)",
+          "targets": [
+            "Revenue: ₹2,350,000",
+            "Corporate clients: 3",
+            "Tournament participants: 100",
+            "Customer satisfaction: 4.5/5"
+          ]
+        },
+        {
+          "quarter": "Q1 2026 (Months 7-9)",
+          "targets": [
+            "Revenue: ₹2,450,000",
+            "Corporate clients: 5",
+            "Program participants: 100",
+            "Customer satisfaction: 4.6/5"
+          ]
+        },
+        {
+          "quarter": "Q2 2026 (Months 10-12)",
+          "targets": [
+            "Revenue: ₹2,500,000",
+            "Program participants: 120",
+            "Tournament participants: 200",
+            "Customer satisfaction: 4.7/5"
+          ]
+        }
+      ],
+      "annual_goals": [
+        {
+          "goal": "Total revenue uplift",
+          "target": "₹6,000,000 (32% increase)",
+          "kpis": [
+            "Revenue growth rate",
+            "Revenue per member"
+          ]
+        },
+        {
+          "goal": "Program diversification",
+          "target": "5 new programs launched",
+          "kpis": [
+            "Program enrollment",
+            "Program retention"
+          ]
+        },
+        {
+          "goal": "Customer satisfaction",
+          "target": "4.5/5 average rating",
+          "kpis": [
+            "Customer feedback scores",
+            "Member retention"
+          ]
+        },
+        {
+          "goal": "Operational efficiency",
+          "target": "Reduce external platform dependency to 30%",
+          "kpis": [
+            "External revenue %",
+            "Booking system utilization"
+          ]
+        }
+      ]
+    }
+  },
+  "orchestrator_summary": "# **Executive Revenue Growth Strategy for Unity Shuttle Arena**\n**Location:** Hirai Sitai Road, Hinjavadi Phase 1, Pune, PIN-411057\n**Analysis Period:** May 2025 – April 2026\n\n---\n\n## **1. Current Revenue Snapshot**\n- **Total Revenue (Last 12 Months):** ₹1,861,061\n- **Monthly Average Revenue:** ₹155,088\n- **Revenue Breakdown:**\n  - Bookings: ₹153,734 (8.3%)\n  - Product Sales: ₹67,170 (3.6%)\n  - Rentals: ₹68,280 (3.7%)\n  - Monthly Passes: ₹74,700 (4.0%)\n  - **External Platforms (Playo/Khelomore):** ₹789,127 (42.4%)\n  - Coaching: ₹3,500 (0.2%)\n- **Peak Revenue Hours:** 9 PM–11 PM (₹77,349 in 3 hours)\n- **Low Utilization Slots:** 2 AM–7 AM, 10 AM–3 PM\n- **Active Monthly Passes:** 14 (9 held by a single coach)\n- **Negative Margins:** Rental products (-39.9% to -99.9%)\n\n**Key Issue:** Over-reliance on external platforms (42.4% of revenue) and underutilized court capacity.\n\n---\n\n## **2. Top Revenue Gaps (INR Potential)**\n| **Gap**                          | **Current Revenue** | **Potential Revenue** | **Gap (INR/Month)** | **Priority** |\n|-----------------------------------|---------------------|-----------------------|---------------------|--------------|\n| Underpriced Monthly Passes        | ₹74,700             | ₹150,000–210,000      | ₹75,300–135,300     | P1           |\n| Underpriced Peak Court Rentals    | ₹153,734            | ₹280,000–350,000      | ₹126,266–196,266    | P1           |\n| Junior Afternoon Batches          | ₹0                  | ₹55,000–90,000        | ₹55,000–90,000      | P2           |\n| Women-Only Morning Sessions       | ₹0                  | ₹30,000–50,000        | ₹30,000–50,000      | P2           |\n| Corporate Packages                | ₹0                  | ₹70,000–110,000       | ₹70,000–110,000     | P3           |\n| **Total Identified Gap**          |                     |                       | **₹324,000–622,000** |              |\n\n**Revenue Uplift Potential:** **17–33%** (₹3.2L–6.2L/month).\n\n---\n\n## **3. Prioritized Strategic Initiatives**\n### **Quick Wins (0–3 Months)**\n1. **Premium Membership Pricing (INIT-001)**\n   - **Action:** Increase pass pricing to ₹3,000–4,200/month (from ₹1,500–2,000).\n   - **Revenue Uplift:** ₹80,000–120,000/month.\n   - **Cost:** ₹20,000 (marketing).\n   - **ROI:** 4000% (12 months).\n\n2. **Peak Hour Court Rental Optimization (INIT-002)**\n   - **Action:** Raise peak hour (9 PM–11 PM) pricing to ₹350–400/hour (from ₹250–300).\n   - **Revenue Uplift:** ₹100,000–150,000/month.\n   - **Cost:** ₹30,000 (dynamic pricing software).\n   - **ROI:** 3333%.\n\n3. **Rental Product Margin Optimization (INIT-007)**\n   - **Action:** Eliminate loss-making rentals (e.g., shoes, rackets) and introduce premium equipment.\n   - **Revenue Uplift:** ₹30,000–50,000/month.\n   - **Cost:** ₹20,000 (inventory).\n   - **ROI:** 1500%.\n\n### **Medium-Term (3–6 Months)**\n4. **Junior Afternoon Batch Program (INIT-003)**\n   - **Action:** Launch structured junior program (2 PM–5 PM) for 7–17-year-olds.\n   - **Revenue Uplift:** ₹60,000–90,000/month.\n   - **Cost:** ₹120,000 (coach, marketing).\n   - **ROI:** 500%.\n\n5. **Women-Only Morning Sessions (INIT-004)**\n   - **Action:** Introduce 6 AM–8 AM women-only sessions.\n   - **Revenue Uplift:** ₹35,000–50,000/month.\n   - **Cost:** ₹80,000 (female coach, marketing).\n   - **ROI:** 438%.\n\n### **Long-Term (6–12 Months)**\n6. **Corporate Wellness Packages (INIT-006)**\n   - **Action:** Partner with 5+ tech companies for annual contracts (₹12,000–18,000/month).\n   - **Revenue Uplift:** ₹70,000–110,000/month.\n   - **Cost:** ₹150,000 (sales coordinator, GST system).\n   - **ROI:** 567%.\n\n7. **Tournament Circuit (INIT-008)**\n   - **Action:** Host quarterly tournaments (entry fee: ₹400–700/participant).\n   - **Revenue Uplift:** ₹15,000–25,000/month.\n   - **Cost:** ₹100,000 (coordinator, marketing).\n   - **ROI:** 150%.\n\n---\n\n## **4. 12-Month Revenue Trajectory**\n| **Month**       | **Revenue (INR)** | **Profit (INR)** | **Key Milestones**                          |\n|------------------|-------------------|------------------|---------------------------------------------|\n| **Month 1**      | 1,950,000         | 750,000          | Launch premium passes, eliminate loss-making rentals. |\n| **Month 3**      | 2,150,000         | 850,000          | Launch junior program, women-only sessions. |\n| **Month 6**      | 2,300,000         | 920,000          | Sign first corporate clients.               |\n| **Month 9**      | 2,450,000         | 1,000,000        | Expand corporate base to 5 companies.       |\n| **Month 12**     | **2,500,000**     | **1,020,000**    | Achieve 32% revenue growth.                 |\n\n**Total Annual Revenue Uplift:** **₹6,000,000** (32% increase).\n\n---\n\n## **5. Immediate Next Steps (First 30 Days)**\n### **Week 1: Pricing & Operations**\n- [ ] **Increase monthly pass pricing** to ₹3,000–4,200 for new members.\n- [ ] **Eliminate loss-making rental products** (rackets, shoes, table tennis).\n- [ ] **Update booking system** with new peak hour pricing (₹350–400/hour).\n\n### **Week 2: Marketing & Partnerships**\n- [ ] **Launch social media campaign** for premium memberships.\n- [ ] **Reach out to 3 schools** for junior program partnerships.\n- [ ] **Train staff** on new pricing and dynamic booking policies.\n\n### **Week 3: Program Planning**\n- [ ] **Finalize junior program curriculum** and hire part-time coach.\n- [ ] **Design women-only session structure** (6 AM–8 AM).\n- [ ] **Develop corporate package tiers** (₹12,000–18,000/month).\n\n### **Week 4: Launch & Feedback**\n- [ ] **Soft-launch premium passes** and monitor member feedback.\n- [ ] **Pilot women-only sessions** with 5–10 participants.\n- [ ] **Review first-month performance** and adjust pricing if needed.\n\n---\n\n## **6. Critical Success Factors**\n✅ **Member Retention:** Offer grandfathered pricing for existing pass holders (6-month transition).\n✅ **Corporate Buy-In:** Target HR departments with wellness budgets (₹1,500–4,000/employee/month).\n✅ **Program Utilization:** Fill afternoon/early morning slots with juniors, women, and seniors.\n✅ **Operational Efficiency:** Reduce external platform dependency from 42% to 30%.\n\n---\n\n## **7. Risk Mitigation**\n| **Risk**                          | **Mitigation Strategy**                          |\n|-----------------------------------|--------------------------------------------------|\n| Member churn from pricing increase | Grandfather existing members for 6 months.       |\n| Low junior program enrollment      | Offer free trial sessions and sibling discounts. |\n| Corporate sales cycles            | Start with pilot programs (3 companies).         |\n| Safety concerns (early mornings)  | Implement staff training and security protocols. |\n\n---\n\n### **Final Recommendation**\n**Unity Shuttle Arena can achieve ₹2.5M/month revenue (32% growth) within 12 months by:**\n1. **Optimizing pricing** (passes, peak hours, rentals).\n2. **Launching targeted programs** (juniors, women, seniors, corporates).\n3. **Reducing platform dependency** (shift 12% of revenue in-house).\n\n**Total Investment Required:** ₹480,000 (recouped by Month 9).\n**Projected Annual Profit:** ₹12,240,000 (vs. ₹9,600,000 currently).\n\n**Next Step:** Approve budget and kick off **Month 1 initiatives** (pricing updates, rental optimization).",
+  "_generated_at": "2026-05-15T08:35:47.631203",
+  "_period": "1y",
+  "_period_label": "Last 12 Months",
+  "_since_date": "2025-05-15"
+}

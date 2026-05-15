@@ -1,10 +1,12 @@
 import os
 import sys
+import json
 import smtplib
 import socket
 from datetime import datetime, timedelta, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 from collections import defaultdict
 
 REPORT_TO = [
@@ -21,8 +23,125 @@ smtp_port = 587
 
 
 
+_AGENT_ANALYSIS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output", "analysis.json")
+_AGENT_REPORT_PATH   = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agent_report.html")
+
+
 def get_india_today():
     return datetime.now(IST).date()
+
+
+def _fmt_agent(val, default="N/A"):
+    try:
+        n = float(val)
+        if n >= 1_00_000:
+            return f"₹{n / 1_00_000:.2f}L"
+        return f"₹{n:,.0f}"
+    except (TypeError, ValueError):
+        return default
+
+
+def _build_agent_section():
+    """Return an HTML email section with key KPIs from the latest agent analysis.
+    Returns an empty string if no analysis has been run yet."""
+    if not os.path.exists(_AGENT_ANALYSIS_PATH):
+        return ""
+    try:
+        with open(_AGENT_ANALYSIS_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        return ""
+
+    generated_at = (data.get("_generated_at") or "")[:19].replace("T", " ")
+    period_label = data.get("_period_label", "")
+
+    acad      = data.get("collect_academy_data", {})
+    rev       = acad.get("revenue_breakdown", {})
+    gaps_data = data.get("identify_revenue_gaps", {})
+    strat     = data.get("generate_revenue_strategy", {})
+    exec_sum  = gaps_data.get("executive_summary", {})
+    ss        = strat.get("strategy_summary", {})
+
+    total   = float(rev.get("total_revenue_in_db", 0) or 0)
+    daily   = float(rev.get("avg_daily_revenue", 0) or 0)
+    monthly = daily * 30 if daily else (total / 5 if total else 0)
+
+    gap_high  = float(exec_sum.get("total_identified_gap_high", 0) or 0)
+    gaps_cnt  = int(exec_sum.get("number_of_gaps_identified", 0) or 0)
+    m12       = float(ss.get("projected_monthly_revenue_month_12_inr", 0) or 0)
+    roi       = float(ss.get("blended_roi_percent", 0) or 0)
+    invest    = float(ss.get("total_investment_required_inr", 0) or 0)
+
+    top_gaps = gaps_data.get("revenue_gaps", [])[:5]
+
+    # KPI boxes
+    kpi_boxes = ""
+    kpis = [
+        ("Monthly Run Rate",      _fmt_agent(monthly),  "#1a73e8"),
+        ("Gap Potential /mo",     _fmt_agent(gap_high), "#e53935"),
+        ("12-Month Target /mo",   _fmt_agent(m12),      "#2e7d32"),
+        ("Blended ROI",           f"{int(roi)}%",       "#f57c00"),
+        ("Investment Required",   _fmt_agent(invest),   "#6a1b9a"),
+    ]
+    for lbl, val, color in kpis:
+        kpi_boxes += f"""
+            <div style="display:inline-block;background:#f8f9fa;border-left:4px solid {color};
+                        border-radius:4px;padding:10px 16px;margin:4px 6px 4px 0;min-width:140px;">
+              <div style="font-size:18px;font-weight:bold;color:{color}">{val}</div>
+              <div style="font-size:11px;color:#777;margin-top:3px">{lbl}</div>
+            </div>"""
+
+    # Top gaps table rows
+    gap_rows = ""
+    for g in top_gaps:
+        low  = _fmt_agent(g.get("gap_amount_inr_low",  0))
+        high = _fmt_agent(g.get("gap_amount_inr_high", 0))
+        p_raw = str(g.get("priority_rank", "")).upper()
+        p_color = {"P1": "#c62828", "P2": "#e65100", "P3": "#1565c0"}.get(p_raw, "#555")
+        gap_rows += f"""
+            <tr>
+              <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;font-weight:600">
+                {g.get("name","")}</td>
+              <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;color:#555">
+                {g.get("category","")}</td>
+              <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;color:#c62828;font-weight:bold;text-align:right">
+                {low} – {high}/mo</td>
+              <td style="padding:7px 10px;border-bottom:1px solid #f0f0f0;text-align:center">
+                <span style="background:{p_color}22;color:{p_color};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">
+                  {p_raw or "—"}</span></td>
+            </tr>"""
+
+    if not gap_rows:
+        gap_rows = '<tr><td colspan="4" style="padding:10px;color:#aaa;font-style:italic">No gap data available</td></tr>'
+
+    period_note = f" &nbsp;·&nbsp; {period_label}" if period_label else ""
+    attachment_note = ""
+    if os.path.exists(_AGENT_REPORT_PATH):
+        attachment_note = '<p style="margin:12px 0 0;font-size:12px;color:#555">📎 Full strategy report attached as <strong>usa-revenue-report.html</strong></p>'
+
+    return f"""
+    <div class="section" style="background:#f0f7ff;border-left:4px solid #1a73e8;padding:20px 28px">
+      <h2 style="color:#1a73e8;margin:0 0 4px">🤖 Revenue Intelligence — AI Analysis</h2>
+      <p style="font-size:12px;color:#888;margin:0 0 14px">
+        Generated: {generated_at}{period_note} &nbsp;·&nbsp; {gaps_cnt} revenue gaps identified
+      </p>
+      <div style="margin-bottom:16px">{kpi_boxes}</div>
+      <h3 style="font-size:13px;color:#333;margin:0 0 8px;text-transform:uppercase;letter-spacing:.5px">
+        Top Revenue Gaps
+      </h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:6px;overflow:hidden">
+        <thead>
+          <tr style="background:#1a73e8;color:#fff">
+            <th style="padding:8px 10px;text-align:left">Gap</th>
+            <th style="padding:8px 10px;text-align:left">Category</th>
+            <th style="padding:8px 10px;text-align:right">Monthly Gap (₹)</th>
+            <th style="padding:8px 10px;text-align:center">Priority</th>
+          </tr>
+        </thead>
+        <tbody>{gap_rows}</tbody>
+      </table>
+      {attachment_note}
+    </div>"""
 
 
 def _fmt_inr(amount):
@@ -255,6 +374,8 @@ def build_report_html(app, db, Transaction, MonthlyPass, CoachingStudent, Coachi
         </table>
     </div>"""
 
+    sec_agent = _build_agent_section()
+
     html = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><style>{style}</style></head>
@@ -264,13 +385,30 @@ def build_report_html(app, db, Transaction, MonthlyPass, CoachingStudent, Coachi
         <h1>Unity Sports Arena — Daily Report</h1>
         <p>Report for {report_date.strftime('%A, %d %B %Y')} &nbsp;|&nbsp; Generated on {today.strftime('%d %b %Y')} at 9:00 AM IST</p>
     </div>
-    {sec1}{sec2}{sec3}{sec4}{sec5}{sec6}{sec7}{sec8}
+    {sec1}{sec2}{sec3}{sec4}{sec5}{sec6}{sec7}{sec8}{sec_agent}
     <div class="footer">Unity Sports Arena Management System &nbsp;|&nbsp; Automated Daily Report</div>
 </div>
 </body>
 </html>"""
 
     return html, report_date
+
+
+def _run_agent_analysis(period="1y"):
+    """Run the full AI pipeline synchronously before emailing.
+    Failures are non-fatal — the daily report still sends without the agent section."""
+    try:
+        print(f'[report] Running AI revenue analysis (period={period})…')
+        os.makedirs(os.path.dirname(_AGENT_ANALYSIS_PATH), exist_ok=True)
+        from agents.orchestrator import run_revenue_analysis
+        from generate_report import generate_report as _gen_report
+        run_revenue_analysis(period=period)
+        _gen_report(data_path=_AGENT_ANALYSIS_PATH, output_path=_AGENT_REPORT_PATH)
+        print('[report] AI analysis complete.')
+        return True
+    except Exception as exc:
+        print(f'[report] AI analysis failed — daily report will still send: {exc}')
+        return False
 
 
 def send_daily_report(app, db, Transaction, MonthlyPass, CoachingStudent, CoachingBatch):
@@ -282,22 +420,40 @@ def send_daily_report(app, db, Transaction, MonthlyPass, CoachingStudent, Coachi
         print('[report] ERROR: REPORT_EMAIL_USER or REPORT_EMAIL_PASS env vars not set.')
         return
 
+    # Run AI analysis first so fresh data appears in the email body and attachment
+    _run_agent_analysis()
+
     try:
         html, report_date = build_report_html(
             app, db, Transaction, MonthlyPass, CoachingStudent, CoachingBatch
         )
 
-        msg = MIMEMultipart('alternative')
+        # Use 'mixed' so we can carry both the HTML body and file attachments
+        msg = MIMEMultipart('mixed')
         msg['Subject'] = f"USA Daily Report — {report_date.strftime('%d %b %Y')}"
         msg['From'] = email_user
         msg['To'] = ', '.join(REPORT_TO)
-        msg.attach(MIMEText(html, 'html'))
+
+        # HTML body wrapped in an 'alternative' part (best practice)
+        body_part = MIMEMultipart('alternative')
+        body_part.attach(MIMEText(html, 'html'))
+        msg.attach(body_part)
+
+        # Attach the full AI revenue strategy report if it has been generated
+        if os.path.exists(_AGENT_REPORT_PATH):
+            with open(_AGENT_REPORT_PATH, 'rb') as f:
+                attachment = MIMEApplication(f.read(), _subtype='html')
+            attachment.add_header(
+                'Content-Disposition', 'attachment',
+                filename='usa-revenue-report.html'
+            )
+            msg.attach(attachment)
+            print('[report] Attaching AI revenue strategy report')
 
         with smtplib.SMTP(smtp_server, smtp_port, timeout=20) as server:
             server.ehlo()
             server.starttls()
             server.ehlo()
-
             server.login(email_user, email_pass)
             server.sendmail(email_user, REPORT_TO, msg.as_string())
 
